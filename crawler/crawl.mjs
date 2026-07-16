@@ -1,89 +1,89 @@
-// 난지 캠핑장 예약 현황 Playwright 크롤러.
+// 난지캠핑장 예약 현황 Playwright 크롤러 (동작 버전).
 //
-// 실측 리버스 엔지니어링 결과(yeyak.seoul.go.kr 실제 엔드포인트):
-//   - /web/main.do                                  세션 쿠키 발급(진입)
-//   - /web/search/selectPageListTotalSearch.do      통합검색(키워드)
-//   - /web/reservation/selectPageListFacilitySvc.do 시설 서비스 목록
-//   - /web/reservation/selectReservView.do?rsv_svc_id=...   서비스 상세
-//   - /web/reservation/selectListReservCalAjax.do   ★ 날짜별 예약현황(세션 필요; 직접 GET은 302→로그인)
-//   - /web/reservation/selectListReservCalUnitAjax.do  구역/단위별 잔여
+// 흐름: 진입(세션) → 캠핑장 카테고리 목록(T500/T502) → 난지캠핑장 서비스 추출
+//       → 제목에서 구역(일반캠핑존 A/B/C/D형)·상태(접수중/마감) 파싱
+//       → Swift ReservationParser 계약 HTML 출력(<li data-site data-available>).
 //
-// 핵심: 예약현황 AJAX는 세션 쿠키 + XHR 컨텍스트가 있어야 데이터를 반환한다.
-// 그래서 순수 HTTP가 아니라 Playwright(브라우저 세션)로 페이지를 열어
-// 캘린더가 렌더된 뒤 잔여 수량을 읽어야 한다.
-//
-// 출력: Swift ReservationParser 계약(<li data-site="A" data-available="N">) HTML.
+// 참고(실측): 서비스 단위 상태(접수중/마감)는 로그인 없이 조회 가능.
+//   일자별 '잔여 좌석 수'는 예약 신청 폼(insertFormReserve.do)이 로그인을 요구하므로
+//   계정 세션(쿠키)이 있어야 한다. --login-cookie 옵션으로 확장 가능(하단 TODO).
 //
 // 사용:
-//   npm install
-//   node crawl.mjs --month 2026-07            # 실제 크롤(node/Playwright 필요)
-//   node crawl.mjs --month 2026-07 --mock     # 계약 형식 mock
+//   node crawl.mjs                 # 난지캠핑장 라이브 크롤 → 계약 HTML
+//   node crawl.mjs --json          # 상세 JSON
+//   node crawl.mjs --mock          # 브라우저 없이 mock
 
 import { chromium } from "playwright";
 
 const BASE = "https://yeyak.seoul.go.kr";
-const SEARCH_KEYWORD = "난지 캠핑";
+const LIST = `${BASE}/web/search/selectPageListDetailSearchImg.do?code=T500&dCode=T502`;
 
 function parseArgs() {
   const a = process.argv.slice(2);
-  const mi = a.indexOf("--month");
-  return { month: mi >= 0 ? a[mi + 1] : null, useMock: a.includes("--mock") };
+  return { json: a.includes("--json"), mock: a.includes("--mock") };
+}
+
+function zoneOf(title) {
+  const m = title.match(/일반캠핑존\s*([A-D])형/) || title.match(/([A-D])구역/);
+  return m ? m[1] : null;
 }
 
 function toContractHTML(counts) {
-  const items = Object.entries(counts)
-    .map(([s, n]) => `  <li data-site="${s}" data-available="${n}"></li>`)
+  const li = ["A", "B", "C", "D"]
+    .map((s) => `  <li data-site="${s}" data-available="${counts[s] || 0}"></li>`)
     .join("\n");
-  return `<ul class="camp-availability">\n${items}\n</ul>`;
+  return `<ul class="camp-availability">\n${li}\n</ul>`;
 }
 
-async function crawlReal(month) {
+async function crawlReal() {
   const browser = await chromium.launch({ headless: true });
   try {
-    const ctx = await browser.newContext({ locale: "ko-KR" });
-    const page = await ctx.newPage();
+    const page = await (await browser.newContext({ locale: "ko-KR" })).newPage();
+    await page.goto(`${BASE}/web/main.do`, { waitUntil: "domcontentloaded" });
+    await page.goto(LIST, { waitUntil: "networkidle" });
 
-    // 1) 진입 → 세션 쿠키 확보
-    await page.goto(`${BASE}/web/main.do`, { waitUntil: "networkidle" });
-
-    // 2) 캠핑장 카테고리 목록에서 난지캠핑장 svc_id 수집
-    //    (실측: 이 목록은 정적 HTML에 svc_id·상태가 포함 — 순수 HTTP로도 가능하지만
-    //     일관성을 위해 브라우저로 연다. code=T500(시설) & dCode=T502(캠핑장))
-    await page.goto(
-      `${BASE}/web/search/selectPageListDetailSearchImg.do?code=T500&dCode=T502`,
-      { waitUntil: "networkidle" }
-    );
-    // onclick="fnDetailPage('SVCID',...)" title="... 난지캠핑장" 항목만.
-    const svcIds = await page.$$eval("a[onclick*='fnDetailPage']", (as) =>
-      as
-        .filter((a) => (a.getAttribute("title") || "").includes("난지캠핑장"))
-        .map((a) => (a.getAttribute("onclick").match(/fnDetailPage\('([A-Z0-9]+)'/) || [])[1])
-        .filter(Boolean)
-    );
-
-    // 3) 각 서비스 상세를 열어 해당 월의 잔여 수량을 읽는다.
-    //    (selectListReservCalAjax.do가 세션 컨텍스트에서 자동 호출되어 캘린더 렌더)
-    const counts = { A: 0, B: 0, C: 0, D: 0 };
-    for (const svcId of svcIds) {
-      await page.goto(`${BASE}/web/reservation/selectReservView.do?rsv_svc_id=${svcId}`, {
-        waitUntil: "networkidle",
-      });
-      // TODO(사이트 DOM 확정 필요): 구역(A~D)과 해당 월 잔여 수량 셀 셀렉터 매핑.
-      //   const zone = await page.locator("...").innerText();      // A/B/C/D
-      //   const remain = await page.locator("... .remain").count(); // 잔여 슬롯
-      //   counts[zone] += remain;
+    const html = await page.content();
+    const services = [];
+    for (const tag of html.match(/<a\b[^>]*fnDetailPage[^>]*>/g) || []) {
+      const id = (tag.match(/fnDetailPage\(['"]([A-Za-z0-9]+)['"]/) || [])[1];
+      const title = (tag.match(/title=["']([^"']*)["']/) || [])[1] || "";
+      if (!id || !title.includes("난지캠핑장")) continue;
+      // 상태 라벨: 같은 li 블록에서 status
+      const idx = html.indexOf(tag);
+      const seg = html.slice(idx, idx + 600);
+      const status = (seg.match(/bd_label\s+status\d+"[^>]*>([^<]+)</) || [])[1]?.trim() || "?";
+      services.push({ id, title, status, zone: zoneOf(title), open: /접수중/.test(status) });
     }
-    return counts;
+
+    // 일반캠핑존 구역별 접수중 수 집계
+    const counts = {};
+    for (const s of services) if (s.open && s.zone) counts[s.zone] = (counts[s.zone] || 0) + 1;
+    return { services, counts };
   } finally {
     await browser.close();
   }
 }
 
 async function main() {
-  const { month, useMock } = parseArgs();
-  const counts = useMock ? { A: 3, B: 2, C: 0, D: 5 } : await crawlReal(month);
-  process.stdout.write(toContractHTML(counts) + "\n");
+  const { json, mock } = parseArgs();
+  let counts, services;
+  if (mock) {
+    counts = { A: 1, B: 1, C: 0, D: 1 };
+    services = [];
+  } else {
+    ({ counts, services } = await crawlReal());
+  }
+  if (json) {
+    process.stdout.write(JSON.stringify({ counts, services }, null, 2) + "\n");
+  } else {
+    process.stdout.write(toContractHTML(counts) + "\n");
+  }
 }
+
+// TODO(일자별 잔여): 로그인 세션이 필요.
+//   1) storageState(쿠키)로 로그인 상태 주입: newContext({ storageState: 'auth.json' })
+//   2) insertFormReserve.do 진입 → reservCalendar가 렌더한 날짜별 cnt 파싱
+//   (계정 자격증명 필요 — 사용자 제공 시 연결)
 
 main().catch((e) => {
   process.stderr.write(`크롤러 오류: ${e.message}\n`);

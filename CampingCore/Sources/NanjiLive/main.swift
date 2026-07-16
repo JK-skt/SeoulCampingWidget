@@ -28,7 +28,24 @@ func run() async {
         print("  \(label) \(m.iso): \(line)   (해당 월 접수중 서비스 \(openTotal)건)")
     }
     print("\n※ 7월은 이미 접수마감/미노출이라 0, 8월이 현재 오픈 상태입니다(라이브 실측).")
-    print("※ 일자별 '잔여 좌석 수'는 세션 AJAX(로그인) 필요 → Playwright 경로(crawl.mjs).")
+
+    // 3) (옵션) Playwright 크롤러 경유 — CRAWLER_PATH 지정 시 node crawl.mjs 실행→파싱
+    #if os(macOS)
+    if let crawlPath = ProcessInfo.processInfo.environment["CRAWLER_PATH"] {
+        print("\n▶ Playwright 크롤러 경유 (node \(crawlPath))")
+        let ds = ProcessCrawlerDataSource(
+            launchPath: "/usr/bin/env",
+            argumentsBuilder: { _, _ in ["node", crawlPath] })
+        do {
+            let counts = try await ds.siteCounts(campground: .nanji, month: months.last ?? months[0])
+            let line = Campsite.allCases.map { "\($0.label)=\(counts[$0] ?? 0)" }.joined(separator: " ")
+            print("  크롤러→파서 결과: \(line)  ✅ Playwright→Swift 파이프라인 동작")
+        } catch {
+            print("  크롤러 실패: \(error)")
+        }
+    }
+    #endif
+    print("※ 일자별 '잔여 좌석 수'는 예약폼(로그인) 필요 → crawl.mjs에 storageState(쿠키) 주입 예정.")
 }
 
 await run()

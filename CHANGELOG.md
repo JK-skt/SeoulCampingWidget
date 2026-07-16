@@ -29,8 +29,12 @@
   - HybridProvider 기본 primary를 yeyak 난지캠핑장으로 연결
   - 라이브 검증: 난지캠핑장 6개 존(프리/일반 A·B·D형/바비큐/캠프파이어) 전부 접수중
   - `NanjiLive`가 이번달/다음달(7·8월) 구역별 접수중 수를 스냅샷으로 출력 (7월 마감·8월 오픈 실측)
-  - `YeyakDetailClient`: 일자별 잔여 좌석 조회 시도(세션 AJAX) — 302 확인, 완전 조회는 Playwright 필요
-  - `crawl.mjs`: 캠핑장 카테고리 목록(T500/T502)으로 svc_id 수집하도록 갱신
+  - `YeyakDetailClient`: 일자별 잔여 좌석 조회 시도(세션 AJAX) — 302 확인
+  - **Playwright 환경 구축·동작**: node(로컬)+playwright+chromium 설치, `crawl.mjs`가
+    실브라우저로 난지캠핑장을 크롤해 계약 HTML 출력. `NanjiLive`의 `CRAWLER_PATH`로
+    **Playwright→Swift(ProcessCrawlerDataSource→파서) 파이프라인 라이브 검증**(A=1 B=1 C=0 D=1)
+  - 실측: 일자별 잔여 좌석은 예약폼(insertFormReserve.do)이 **로그인 필요** →
+    storageState(쿠키) 주입으로 확장 예정
 - **서울 공공예약 실 API 연동** (라이브 호출 검증)
   - `ReservationService`: 실 응답 스키마(SVCNM/SVCSTATNM/RCPTBGNDT 등) 모델
   - `SeoulReservationClient`: 실 엔드포인트 호출·페이징(실키)·JSON 디코딩, `SEOUL_API_KEY` 환경변수 지원

@@ -4,12 +4,38 @@
 
 ## 상태
 
-🟡 **실측 기반 스캐폴드** — 실제 yeyak 엔드포인트를 리버스 엔지니어링해
-`crawl.mjs`가 진짜 흐름(진입→검색→상세→캘린더)을 타도록 작성됨.
-엔드포인트 맵은 [docs/YEYAK_ENDPOINTS.md](../docs/YEYAK_ENDPOINTS.md) 참고.
+🟢 **동작** — Playwright로 난지캠핑장을 실크롤해 서비스 상태(접수중/마감)를
+구역별로 집계, Swift 파서 계약 HTML을 출력한다. `node crawl.mjs`로 라이브 실행됨.
 
-남은 것: 상세 페이지의 **구역(A~D)·잔여 수량 DOM 셀렉터** 확정(실 계정 세션 필요).
-예약현황 AJAX는 직접 GET 시 302(로그인)이라 Playwright 브라우저 세션이 필수다.
+🟡 남은 것: **일자별 잔여 좌석 수**는 예약 신청 폼(`insertFormReserve.do`)이
+**로그인**을 요구한다(실측). 계정 세션 쿠키(storageState)를 주입하면 확장 가능.
+
+## 환경 준비 (node 없을 때)
+
+```bash
+# 1) node 로컬 설치(예: ~/.local, PATH에 ~/.local/bin 포함 가정)
+curl -sSL https://nodejs.org/dist/v22.11.0/node-v22.11.0-darwin-arm64.tar.gz | tar -xz -C ~/.local/opt
+ln -sf ~/.local/opt/node-v22.11.0-darwin-arm64/bin/{node,npm,npx} ~/.local/bin/
+
+# 2) Playwright + Chromium
+cd crawler && npm install    # postinstall이 chromium 설치
+```
+
+## 실행
+
+```bash
+node crawl.mjs          # 난지캠핑장 라이브 크롤 → 계약 HTML(A/B/C/D 접수중 수)
+node crawl.mjs --json   # 서비스 상세 JSON
+node crawl.mjs --mock   # 브라우저 없이 mock
+```
+
+Swift 연동(파이프라인 검증):
+```bash
+CRAWLER_PATH=$PWD/crawler/crawl.mjs swift run --package-path CampingCore NanjiLive
+# → "크롤러→파서 결과: A=1 B=1 C=0 D=1  ✅ Playwright→Swift 파이프라인 동작"
+```
+
+엔드포인트 맵: [docs/YEYAK_ENDPOINTS.md](../docs/YEYAK_ENDPOINTS.md)
 
 ## 계약(Contract)
 
