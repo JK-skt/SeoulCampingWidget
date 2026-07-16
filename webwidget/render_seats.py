@@ -26,7 +26,7 @@ for svc in data["services"]:
     for d in svc.get("days", []):
         y, m, dd = int(d["ymd"][:4]), int(d["ymd"][4:6]), int(d["ymd"][6:8])
         grid.setdefault((y, m), {}).setdefault(dd, {})[site] = d
-        url_map[(y, m, site)] = (BASE + sid) if sid else "https://yeyak.seoul.go.kr"
+        url_map[(y, m, site)] = (BASE + sid) if sid else "https://yeyak.seoul.go.kr/web/search/selectPageListDetailSearchImg.do?code=T500&dCode=T502"
 
 def cell_body(rec, y, m):
     if not rec: return ""
@@ -35,7 +35,7 @@ def cell_body(rec, y, m):
         if s not in rec: continue
         r = rec[s]["remain"]
         cls = "full" if r <= 0 else ("low" if r <= 3 else "ok")
-        url = url_map.get((y, m, s), "https://yeyak.seoul.go.kr")
+        url = url_map.get((y, m, s), "https://yeyak.seoul.go.kr/web/search/selectPageListDetailSearchImg.do?code=T500&dCode=T502")
         chips += f'<a class="chip {cls}" href="{url}" target="_blank" title="{s}형 예약 페이지">{s}<b>{max(0,r)}</b></a>'
     return f'<div class="chips">{chips}</div>'
 

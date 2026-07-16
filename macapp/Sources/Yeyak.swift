@@ -71,7 +71,7 @@ struct CalendarService: Codable, Hashable {
     }
     var month: Int? { days.first.map(\.month) }
     var reservationURL: URL? {
-        id.isEmpty ? URL(string: "https://yeyak.seoul.go.kr")
+        id.isEmpty ? URL(string: "https://yeyak.seoul.go.kr/web/search/selectPageListDetailSearchImg.do?code=T500&dCode=T502")
                    : URL(string: "https://yeyak.seoul.go.kr/web/reservation/selectReservView.do?rsv_svc_id=\(id)")
     }
 }
