@@ -65,18 +65,25 @@ async function crawlReal() {
       ...(authed ? { storageState: AUTH } : {}),
     });
     const page = await ctx.newPage();
-    await page.goto(`${BASE}/web/main.do`, { waitUntil: "domcontentloaded" });
-    await page.goto(LIST, { waitUntil: "networkidle" });
 
-    const html = await page.content();
-    const services = [];
-    for (const tag of html.match(/<a\b[^>]*fnDetailPage[^>]*>/g) || []) {
-      const id = (tag.match(/fnDetailPage\(['"]([A-Za-z0-9]+)['"]/) || [])[1];
-      const title = (tag.match(/title=["']([^"']*)["']/) || [])[1] || "";
-      if (!id || !title.includes("난지캠핑장")) continue;
-      const idx = html.indexOf(tag);
-      const status = (html.slice(idx, idx + 600).match(/bd_label\s+status\d+"[^>]*>([^<]+)</) || [])[1]?.trim() || "?";
-      services.push({ id, title, status, zone: zoneOf(title), open: /접수중/.test(status) });
+    // 목록 로드는 간헐적으로 비어 올 수 있어 최대 4회 재시도(세션부터 다시).
+    let services = [];
+    for (let attempt = 1; attempt <= 4 && services.length === 0; attempt++) {
+      await page.goto(`${BASE}/web/main.do`, { waitUntil: "domcontentloaded" });
+      await page.goto(LIST, { waitUntil: "networkidle" });
+      try { await page.waitForFunction(() => document.body.innerHTML.includes("난지캠핑장"), { timeout: 10000 }); }
+      catch { /* 타임아웃이면 아래에서 재시도 */ }
+      const html = await page.content();
+      services = [];
+      for (const tag of html.match(/<a\b[^>]*fnDetailPage[^>]*>/g) || []) {
+        const id = (tag.match(/fnDetailPage\(['"]([A-Za-z0-9]+)['"]/) || [])[1];
+        const title = (tag.match(/title=["']([^"']*)["']/) || [])[1] || "";
+        if (!id || !title.includes("난지캠핑장")) continue;
+        const idx = html.indexOf(tag);
+        const status = (html.slice(idx, idx + 600).match(/bd_label\s+status\d+"[^>]*>([^<]+)</) || [])[1]?.trim() || "?";
+        services.push({ id, title, status, zone: zoneOf(title), open: /접수중/.test(status) });
+      }
+      if (services.length === 0) await page.waitForTimeout(1000);
     }
 
     // 로그인 세션이면 서비스별 예약 가능일 수집
