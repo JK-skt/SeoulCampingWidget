@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="_ds/hanok-deck-design-system-019dd7c7-2a6c-73d1-9bbb-af8502c51f04/colors_and_type.css">
+<script src="_ds/hanok-deck-design-system-019dd7c7-2a6c-73d1-9bbb-af8502c51f04/_ds_bundle.js"></script>
+<style>
+@keyframes camp-spin { to { transform: rotate(360deg); } }
+@keyframes camp-shimmer { 0% { background-position: -420px 0; } 100% { background-position: 420px 0; } }
+@keyframes camp-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+</style>
+</helmet>
+<div style="min-height:100vh;box-sizing:border-box;background:radial-gradient(120% 120% at 50% -10%, #26262b 0%, #1a1a1d 45%, #101012 100%);font-family:'SF Pro Text','Pretendard','Apple SD Gothic Neo',-apple-system,sans-serif;color:#f2f2f7;padding:56px 48px 96px;--green:#30d158;--orange:#ff9f0a;--red:#ff453a;--gray:#8e8e93;--blue:#0a84ff;--accent:#0a84ff;--win:#232326;--elev:#2c2c30;--card:#2a2a2e;--sep:rgba(255,255,255,0.09);--sep2:rgba(255,255,255,0.16);--t1:#f5f5f7;--t2:rgba(235,235,245,0.62);--t3:rgba(235,235,245,0.38);-webkit-font-smoothing:antialiased;">
+
+  <div style="max-width:1280px;margin:0 auto;display:flex;flex-direction:column;gap:14px;margin-bottom:44px;">
+    <div style="font-size:12px;letter-spacing:1.6px;text-transform:uppercase;color:var(--t3);font-weight:600;">Seoul Camping · UI/UX Redesign</div>
+    <div style="font-size:34px;font-weight:700;letter-spacing:-0.5px;">난지캠핑장 예약 현황 — Apple 네이티브 리디자인</div>
+    <div style="font-size:15px;color:var(--t2);max-width:760px;line-height:1.55;">macOS Human Interface Guidelines 기반 다크 모드 리디자인. 시맨틱 색상·상태 텍스트·아이콘 병기로 3초 안에 가장 가까운 금·토 빈자리를 찾도록 설계했습니다. 메인 앱 · 메뉴바 · 위젯 · 설정 · 상태 화면을 한 화면에 정리했습니다.</div>
+  </div>
+
+  <!-- ══════════ 1 · MAIN APP ══════════ -->
+  <div style="max-width:1280px;margin:0 auto 56px;">
+    <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:16px;">
+      <div style="font-size:13px;font-weight:700;letter-spacing:0.3px;color:var(--t1);background:var(--elev);border:1px solid var(--sep);padding:5px 12px;border-radius:8px;">01 · 메인 앱</div>
+      <div style="font-size:13px;color:var(--t3);">헤더 · 요약 카드 · 이중 월 달력 · 상세 인스펙터</div>
+    </div>
+
+    <div style="background:var(--win);border:1px solid var(--sep);border-radius:16px;overflow:hidden;box-shadow:0 40px 80px -24px rgba(0,0,0,0.7),0 0 0 1px rgba(0,0,0,0.4);">
+      <!-- titlebar / toolbar -->
+      <div style="display:flex;align-items:center;gap:16px;padding:14px 18px;background:linear-gradient(180deg,#2f2f33,#28282c);border-bottom:1px solid var(--sep);">
+        <div style="display:flex;gap:8px;">
+          <div style="width:12px;height:12px;border-radius:50%;background:#ff5f57;"></div>
+          <div style="width:12px;height:12px;border-radius:50%;background:#febc2e;"></div>
+          <div style="width:12px;height:12px;border-radius:50%;background:#28c840;"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:9px;margin-left:2px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 20 12 5l8.5 15"/><path d="M12 5v15"/><path d="M8 20l4-6 4 6"/></svg>
+          <span style="font-size:15px;font-weight:700;letter-spacing:-0.2px;">난지캠핑장 예약 현황</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;padding:4px 11px 4px 8px;border-radius:20px;background:rgba(48,209,88,0.14);border:1px solid rgba(48,209,88,0.28);">
+          <span style="width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(48,209,88,0.22);"></span>
+          <span style="font-size:12px;font-weight:600;color:var(--green);">실시간</span>
+        </div>
+        <div style="flex:1;"></div>
+        <span style="font-size:12.5px;color:var(--t2);font-variant-numeric:tabular-nums;">갱신 <span style="color:var(--t1);font-weight:600;">방금 전</span> · 오후 11:41</span>
+        <div style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:9px;background:var(--elev);border:1px solid var(--sep);cursor:pointer;" onClick="{{ vm.refresh }}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--t1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="{{ vm.refreshSpin }}"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+          <span style="font-size:12.5px;font-weight:600;">새로고침</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:5px 10px 5px 12px;border-radius:9px;background:var(--elev);border:1px solid var(--sep);">
+          <span style="font-size:12.5px;color:var(--t2);">자동 갱신</span>
+          <div style="width:34px;height:20px;border-radius:20px;background:var(--green);position:relative;cursor:pointer;" onClick="{{ vm.toggleAuto }}">
+            <div style="{{ vm.autoKnob }}"></div>
+          </div>
+          <span style="font-size:12px;font-weight:600;color:var(--t1);">15분</span>
+        </div>
+        <div style="width:30px;height:30px;border-radius:9px;background:var(--elev);border:1px solid var(--sep);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </div>
+      </div>
+
+      <!-- control row: view toggle + filters + legend -->
+      <div style="display:flex;align-items:center;gap:14px;padding:12px 18px;border-bottom:1px solid var(--sep);background:rgba(0,0,0,0.12);flex-wrap:wrap;">
+        <div style="display:flex;background:rgba(0,0,0,0.3);border:1px solid var(--sep);border-radius:9px;padding:3px;">
+          <div style="{{ vm.segCalendar }}" onClick="{{ vm.showCalendar }}">달력</div>
+          <div style="{{ vm.segList }}" onClick="{{ vm.showList }}">주말 목록</div>
+        </div>
+        <div style="width:1px;height:22px;background:var(--sep);"></div>
+        <div style="display:flex;gap:7px;">
+          <div style="{{ vm.chipFri }}" onClick="{{ vm.setFri }}">금요일</div>
+          <div style="{{ vm.chipSat }}" onClick="{{ vm.setSat }}">토요일</div>
+          <div style="{{ vm.chipAvail }}" onClick="{{ vm.toggleAvail }}">잔여 있음</div>
+        </div>
+        <div style="flex:1;"></div>
+        <!-- legend -->
+        <div style="display:flex;align-items:center;gap:14px;font-size:12px;color:var(--t2);">
+          <span style="display:flex;align-items:center;gap:5px;"><span style="color:var(--green);font-size:13px;">●</span>여유</span>
+          <span style="display:flex;align-items:center;gap:5px;"><span style="color:var(--orange);font-size:11px;">▲</span>임박</span>
+          <span style="display:flex;align-items:center;gap:5px;"><span style="color:var(--gray);">—</span>마감</span>
+          <span style="width:1px;height:16px;background:var(--sep);"></span>
+          <span style="display:flex;align-items:center;gap:5px;"><span style="width:11px;height:11px;border-radius:3px;background:rgba(10,132,255,0.5);display:inline-block;"></span>금</span>
+          <span style="display:flex;align-items:center;gap:5px;"><span style="width:11px;height:11px;border-radius:3px;background:rgba(48,209,88,0.5);display:inline-block;"></span>토</span>
+        </div>
+      </div>
+
+      <!-- summary cards -->
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;padding:18px;border-bottom:1px solid var(--sep);">
+        <div style="background:linear-gradient(160deg,rgba(10,132,255,0.16),rgba(10,132,255,0.05));border:1px solid rgba(10,132,255,0.28);border-radius:12px;padding:14px;cursor:pointer;">
+          <div style="font-size:11.5px;color:var(--t2);font-weight:600;margin-bottom:7px;display:flex;align-items:center;gap:5px;"><span style="width:8px;height:8px;border-radius:2px;background:var(--blue);display:inline-block;"></span>가장 가까운 금요일</div>
+          <div style="font-size:20px;font-weight:700;letter-spacing:-0.3px;">{{ vm.nearFri.date }}</div>
+          <div style="font-size:12.5px;color:var(--t2);margin-top:3px;font-variant-numeric:tabular-nums;">총 <b style="color:var(--green);">{{ vm.nearFri.total }}</b>자리 · {{ vm.nearFri.status }}</div>
+        </div>
+        <div style="background:linear-gradient(160deg,rgba(48,209,88,0.16),rgba(48,209,88,0.05));border:1px solid rgba(48,209,88,0.28);border-radius:12px;padding:14px;cursor:pointer;">
+          <div style="font-size:11.5px;color:var(--t2);font-weight:600;margin-bottom:7px;display:flex;align-items:center;gap:5px;"><span style="width:8px;height:8px;border-radius:2px;background:var(--green);display:inline-block;"></span>가장 가까운 토요일</div>
+          <div style="font-size:20px;font-weight:700;letter-spacing:-0.3px;">{{ vm.nearSat.date }}</div>
+          <div style="font-size:12.5px;color:var(--t2);margin-top:3px;font-variant-numeric:tabular-nums;">총 <b style="color:var(--green);">{{ vm.nearSat.total }}</b>자리 · {{ vm.nearSat.status }}</div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--sep);border-radius:12px;padding:14px;">
+          <div style="font-size:11.5px;color:var(--t2);font-weight:600;margin-bottom:7px;">이번달 예약 가능 주말</div>
+          <div style="font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;">{{ vm.julWeekends }}<span style="font-size:14px;color:var(--t2);font-weight:600;">일</span></div>
+          <div style="font-size:12px;color:var(--t3);margin-top:3px;">7월 금·토 기준</div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--sep);border-radius:12px;padding:14px;">
+          <div style="font-size:11.5px;color:var(--t2);font-weight:600;margin-bottom:7px;">다음달 예약 가능 주말</div>
+          <div style="font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;">{{ vm.augWeekends }}<span style="font-size:14px;color:var(--t2);font-weight:600;">일</span></div>
+          <div style="font-size:12px;color:var(--t3);margin-top:3px;">8월 금·토 기준</div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--sep);border-radius:12px;padding:14px;">
+          <div style="font-size:11.5px;color:var(--t2);font-weight:600;margin-bottom:7px;">잔여 최다 날짜</div>
+          <div style="font-size:20px;font-weight:700;letter-spacing:-0.3px;">{{ vm.bestDay.date }}</div>
+          <div style="font-size:12.5px;color:var(--t2);margin-top:3px;font-variant-numeric:tabular-nums;">총 <b style="color:var(--green);">{{ vm.bestDay.total }}</b>자리</div>
+        </div>
+      </div>
+
+      <!-- body: calendar/list + inspector -->
+      <div style="display:grid;grid-template-columns:1fr 300px;gap:0;">
+        <div style="padding:18px;border-right:1px solid var(--sep);min-height:520px;">
+
+          <!-- CALENDAR VIEW -->
+          <sc-if value="{{ vm.isCalendar }}" hint-placeholder-val="{{ true }}">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+            <div>
+              <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:12px;"><span style="font-size:16px;font-weight:700;">2026년 7월</span><span style="font-size:12px;color:var(--t3);">이번 달</span></div>
+              <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px;">
+                <div style="text-align:center;font-size:11px;font-weight:600;color:var(--red);">일</div>
+                <div style="text-align:center;font-size:11px;font-weight:600;color:var(--t2);">월</div>
+                <div style="text-align:center;font-size:11px;font-weight:600;color:var(--t2);">화</div>
+                <div style="text-align:center;font-size:11px;font-weight:600;color:var(--t2);">수</div>
+                <div style="text-align:center;font-size:11px;font-weight:600;color:var(--t2);">목</div>
+                <div style="text-align:center;font-size:11px;font-weight:600;color:var(--blue);">금</div>
+                <div style="text-align:center;font-size:11px;font-weight:600;color:var(--blue);">토</div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;">
+                <sc-for list="{{ vm.julCells }}" as="c" hint-placeholder-count="35">
+                  <sc-if value="{{ c.empty }}" hint-placeholder-val="{{ false }}"><div></div></sc-if>
+                  <sc-if value="{{ c.filled }}" hint-placeholder-val="{{ true }}">
+                    <div style="{{ c.box }}" onClick="{{ c.select }}">
+                      <div style="display:flex;align-items:center;justify-content:space-between;">
+                        <span style="{{ c.dayStyle }}">{{ c.day }}</span>
+                        <sc-if value="{{ c.hasData }}" hint-placeholder-val="{{ true }}"><span style="{{ c.totalStyle }}">{{ c.total }}</span></sc-if>
+                      </div>
+                      <sc-if value="{{ c.hasData }}" hint-placeholder-val="{{ true }}">
+                        <div style="{{ c.statusStyle }}">{{ c.statusLabel }}</div>
+                      </sc-if>
+                      <sc-if value="{{ c.showChips }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:auto;">
+                          <sc-for list="{{ c.chips }}" as="ch" hint-placeholder-count="4">
+                            <span style="{{ ch.style }}">{{ ch.label }}</span>
+                          </sc-for>
+                        </div>
+                      </sc-if>
+                    </div>
+                  </sc-if>
+                </sc-for>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:12px;"><span style="font-size:16px;font-weight:700;">2026년 8월</span><span style="font-size:12px;color:var(--t3);">다음 달</span></div>
+              <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px;">
+                <div style="text-align:center;font-size:11px;font-weight:600;color:var(--red);">일</div>
+                <div style="text-align:center;font-size:11px;font-weight:600;color:var(--t2);">월</div>
+                <div style="text-align:center;font-size:11px;font-weight:600;color:var(--t2);">화</div>
+                <div style="text-align:center;font-size:11px;font-weight:600;color:var(--t2);">수</div>
+                <div style="text-align:center;font-size:11px;font-weight:600;color:var(--t2);">목</div>
+                <div style="text-align:center;font-size:11px;font-weight:600;color:var(--blue);">금</div>
+                <div style="text-align:center;font-size:11px;font-weight:600;color:var(--blue);">토</div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;">
+                <sc-for list="{{ vm.augCells }}" as="c" hint-placeholder-count="35">
+                  <sc-if value="{{ c.empty }}" hint-placeholder-val="{{ false }}"><div></div></sc-if>
+                  <sc-if value="{{ c.filled }}" hint-placeholder-val="{{ true }}">
+                    <div style="{{ c.box }}" onClick="{{ c.select }}">
+                      <div style="display:flex;align-items:center;justify-content:space-between;">
+                        <span style="{{ c.dayStyle }}">{{ c.day }}</span>
+                        <sc-if value="{{ c.hasData }}" hint-placeholder-val="{{ true }}"><span style="{{ c.totalStyle }}">{{ c.total }}</span></sc-if>
+                      </div>
+                      <sc-if value="{{ c.hasData }}" hint-placeholder-val="{{ true }}">
+                        <div style="{{ c.statusStyle }}">{{ c.statusLabel }}</div>
+                      </sc-if>
+                      <sc-if value="{{ c.showChips }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:auto;">
+                          <sc-for list="{{ c.chips }}" as="ch" hint-placeholder-count="4">
+                            <span style="{{ ch.style }}">{{ ch.label }}</span>
+                          </sc-for>
+                        </div>
+                      </sc-if>
+                    </div>
+                  </sc-if>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+          </sc-if>
+
+          <!-- LIST VIEW -->
+          <sc-if value="{{ vm.isList }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="font-size:13px;color:var(--t2);margin-bottom:4px;">주말(금·토) {{ vm.listCount }}개 · 가까운 순</div>
+            <sc-for list="{{ vm.listRows }}" as="r" hint-placeholder-count="8">
+              <div style="{{ r.box }}" onClick="{{ r.select }}">
+                <div style="width:52px;text-align:center;">
+                  <div style="font-size:22px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;">{{ r.day }}</div>
+                  <div style="{{ r.wdStyle }}">{{ r.wd }}</div>
+                </div>
+                <div style="width:1px;align-self:stretch;background:var(--sep);"></div>
+                <div style="width:120px;">
+                  <div style="font-size:14px;font-weight:600;">{{ r.monthLabel }}</div>
+                  <div style="font-size:12.5px;color:var(--t2);margin-top:2px;font-variant-numeric:tabular-nums;">총 <b style="{{ r.totalColor }}">{{ r.total }}</b>자리 · {{ r.status }}</div>
+                </div>
+                <div style="display:flex;gap:6px;flex:1;">
+                  <sc-for list="{{ r.chips }}" as="ch" hint-placeholder-count="4">
+                    <div style="{{ ch.box }}"><span style="font-size:10.5px;color:var(--t3);">{{ ch.label }}</span><span style="{{ ch.num }}">{{ ch.remain }}</span></div>
+                  </sc-for>
+                </div>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+              </div>
+            </sc-for>
+          </div>
+          </sc-if>
+
+        </div>
+
+        <!-- INSPECTOR -->
+        <div style="padding:18px;display:flex;flex-direction:column;gap:16px;background:rgba(0,0,0,0.14);">
+          <div>
+            <div style="font-size:12px;color:var(--t3);font-weight:600;margin-bottom:4px;">선택한 날짜</div>
+            <div style="font-size:22px;font-weight:700;letter-spacing:-0.4px;">{{ vm.detail.date }}</div>
+            <div style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:4px 11px;border-radius:20px;{{ vm.detail.statusBg }}">
+              <span style="font-size:12px;">{{ vm.detail.statusSym }}</span>
+              <span style="font-size:12.5px;font-weight:700;{{ vm.detail.statusColor }}">{{ vm.detail.statusLabel }}</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:baseline;gap:8px;padding:14px;background:var(--card);border:1px solid var(--sep);border-radius:12px;">
+            <span style="font-size:12px;color:var(--t2);">총 잔여</span>
+            <span style="font-size:30px;font-weight:800;font-variant-numeric:tabular-nums;{{ vm.detail.statusColor }}">{{ vm.detail.total }}</span>
+            <span style="font-size:14px;color:var(--t2);font-weight:600;">자리</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:9px;">
+            <div style="font-size:12px;color:var(--t3);font-weight:600;">사이트 유형별 잔여</div>
+            <sc-for list="{{ vm.detail.sites }}" as="s" hint-placeholder-count="7">
+              <div>
+                <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;">
+                  <span style="font-size:12.5px;color:var(--t1);font-weight:500;">{{ s.name }}</span>
+                  <span style="font-size:12.5px;font-variant-numeric:tabular-nums;"><b style="{{ s.color }}">{{ s.remain }}</b><span style="color:var(--t3);"> / {{ s.cap }}</span></span>
+                </div>
+                <div style="height:5px;border-radius:3px;background:rgba(255,255,255,0.08);overflow:hidden;"><div style="{{ s.bar }}"></div></div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;border-radius:10px;background:var(--accent);cursor:pointer;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+              <span style="font-size:13.5px;font-weight:700;color:#fff;">예약 페이지 열기</span>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;border-radius:10px;background:var(--elev);border:1px solid var(--sep);cursor:pointer;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--t1)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.9 6.3 6.9.6-5.2 4.5 1.6 6.8L12 17.3 5.8 20.8l1.6-6.8L2.2 8.9l6.9-.6z"/></svg>
+                <span style="font-size:12.5px;font-weight:600;">즐겨찾기</span>
+              </div>
+              <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;border-radius:10px;background:var(--elev);border:1px solid var(--sep);cursor:pointer;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--t1)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                <span style="font-size:12.5px;font-weight:600;">알림</span>
+              </div>
+            </div>
+            <div style="font-size:11px;color:var(--t3);text-align:center;">마지막 확인: 오후 11:41</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 2 · MENU BAR ══════════ -->
+  <div style="max-width:1280px;margin:0 auto 56px;">
+    <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:16px;">
+      <div style="font-size:13px;font-weight:700;letter-spacing:0.3px;color:var(--t1);background:var(--elev);border:1px solid var(--sep);padding:5px 12px;border-radius:8px;">02 · 메뉴바</div>
+      <div style="font-size:13px;color:var(--t3);">Control Center 스타일 · 빠른 확인</div>
+    </div>
+    <div style="display:flex;gap:32px;align-items:flex-start;flex-wrap:wrap;">
+      <div style="flex:1;min-width:340px;">
+        <!-- menubar strip -->
+        <div style="display:flex;align-items:center;justify-content:flex-end;gap:18px;height:26px;padding:0 14px;background:rgba(255,255,255,0.08);backdrop-filter:blur(30px);border-radius:8px;border:1px solid var(--sep);font-size:13px;color:var(--t2);margin-bottom:12px;">
+          <span>􀙭</span><span style="font-variant-numeric:tabular-nums;">100%</span><span>􀊫</span>
+          <span style="display:flex;align-items:center;gap:5px;color:var(--t1);font-weight:600;background:rgba(48,209,88,0.16);padding:2px 9px;border-radius:6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 20 12 5l8.5 15"/><path d="M12 5v15"/></svg>
+            <span style="font-variant-numeric:tabular-nums;">금·토 {{ vm.openCount }}</span>
+          </span>
+        </div>
+        <div style="font-size:11.5px;color:var(--t3);">메뉴바 라벨: 금·토 예약 가능 사이트 개수 · 상태별 아이콘(텐트·경고·진행) 자동 전환</div>
+      </div>
+
+      <!-- popover -->
+      <div style="width:320px;background:rgba(40,40,44,0.86);backdrop-filter:blur(40px) saturate(1.6);border:1px solid var(--sep2);border-radius:16px;padding:16px;box-shadow:0 30px 60px -18px rgba(0,0,0,0.75);display:flex;flex-direction:column;gap:13px;">
+        <div style="display:flex;align-items:center;gap:9px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 20 12 5l8.5 15"/><path d="M12 5v15"/></svg>
+          <span style="font-size:15px;font-weight:700;">난지캠핑장</span>
+          <span style="display:flex;align-items:center;gap:5px;margin-left:auto;font-size:11.5px;color:var(--green);font-weight:600;"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);"></span>실시간</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:11px;background:rgba(10,132,255,0.14);border:1px solid rgba(10,132,255,0.26);">
+            <div style="width:38px;text-align:center;"><div style="font-size:19px;font-weight:800;line-height:1;">{{ vm.nearFri.dayNum }}</div><div style="font-size:11px;color:var(--blue);font-weight:700;">금</div></div>
+            <div style="flex:1;"><div style="font-size:13px;font-weight:600;">{{ vm.nearFri.date }}</div><div style="font-size:12px;color:var(--t2);font-variant-numeric:tabular-nums;">총 {{ vm.nearFri.total }}자리 · {{ vm.nearFri.status }}</div></div>
+            <div style="font-size:11px;font-family:'SF Mono',monospace;color:var(--t2);font-variant-numeric:tabular-nums;">{{ vm.nearFri.abcd }}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:11px;background:rgba(48,209,88,0.13);border:1px solid rgba(48,209,88,0.26);">
+            <div style="width:38px;text-align:center;"><div style="font-size:19px;font-weight:800;line-height:1;">{{ vm.nearSat.dayNum }}</div><div style="font-size:11px;color:var(--green);font-weight:700;">토</div></div>
+            <div style="flex:1;"><div style="font-size:13px;font-weight:600;">{{ vm.nearSat.date }}</div><div style="font-size:12px;color:var(--t2);font-variant-numeric:tabular-nums;">총 {{ vm.nearSat.total }}자리 · {{ vm.nearSat.status }}</div></div>
+            <div style="font-size:11px;font-family:'SF Mono',monospace;color:var(--t2);font-variant-numeric:tabular-nums;">{{ vm.nearSat.abcd }}</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--t3);font-weight:600;">다가오는 주말</div>
+        <div style="display:flex;flex-direction:column;gap:1px;">
+          <sc-for list="{{ vm.popRows }}" as="p" hint-placeholder-count="5">
+            <div style="display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:8px;">
+              <span style="width:44px;font-size:12px;color:var(--t1);font-weight:600;">{{ p.label }}</span>
+              <span style="{{ p.wdStyle }}">{{ p.wd }}</span>
+              <span style="flex:1;"></span>
+              <span style="font-size:12px;color:var(--t2);font-variant-numeric:tabular-nums;">{{ p.total }}자리</span>
+              <span style="{{ p.dot }}"></span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="height:1px;background:var(--sep);"></div>
+        <div style="display:flex;gap:8px;">
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;border-radius:9px;background:var(--elev);border:1px solid var(--sep);cursor:pointer;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t1)" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg><span style="font-size:12px;font-weight:600;">새로고침</span>
+          </div>
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;border-radius:9px;background:var(--accent);cursor:pointer;">
+            <span style="font-size:12px;font-weight:700;color:#fff;">앱 열기</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--t3);">
+          <span>갱신 방금 전</span>
+          <span style="display:flex;gap:12px;"><span style="cursor:pointer;">예약 페이지</span><span style="cursor:pointer;">설정</span><span style="cursor:pointer;">종료</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 3 · WIDGETS ══════════ -->
+  <div style="max-width:1280px;margin:0 auto 56px;">
+    <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:16px;">
+      <div style="font-size:13px;font-weight:700;letter-spacing:0.3px;color:var(--t1);background:var(--elev);border:1px solid var(--sep);padding:5px 12px;border-radius:8px;">03 · 위젯</div>
+      <div style="font-size:13px;color:var(--t3);">WidgetKit · Small / Medium / Large</div>
+    </div>
+    <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;">
+      <!-- Small -->
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="font-size:11.5px;color:var(--t3);font-weight:600;">Small</div>
+        <div style="width:170px;height:170px;border-radius:22px;background:linear-gradient(165deg,#2a2e34,#1c1f24);border:1px solid var(--sep);padding:16px;box-sizing:border-box;display:flex;flex-direction:column;box-shadow:0 20px 40px -14px rgba(0,0,0,0.6);">
+          <div style="display:flex;align-items:center;gap:6px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 20 12 5l8.5 15"/><path d="M12 5v15"/></svg><span style="font-size:12px;font-weight:700;color:var(--t2);">난지캠핑</span></div>
+          <div style="margin-top:auto;">
+            <div style="font-size:12px;color:var(--blue);font-weight:700;">{{ vm.nearWk.wdFull }}</div>
+            <div style="font-size:19px;font-weight:700;letter-spacing:-0.3px;">{{ vm.nearWk.date }}</div>
+            <div style="display:flex;align-items:baseline;gap:4px;margin-top:6px;"><span style="font-size:32px;font-weight:800;line-height:1;color:var(--green);font-variant-numeric:tabular-nums;">{{ vm.nearWk.total }}</span><span style="font-size:13px;color:var(--t2);font-weight:600;">자리</span></div>
+            <div style="font-size:11.5px;color:var(--t2);margin-top:4px;">{{ vm.nearWk.status }} · 방금 갱신</div>
+          </div>
+        </div>
+      </div>
+      <!-- Medium -->
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="font-size:11.5px;color:var(--t3);font-weight:600;">Medium</div>
+        <div style="width:364px;height:170px;border-radius:22px;background:linear-gradient(165deg,#2a2e34,#1c1f24);border:1px solid var(--sep);padding:16px;box-sizing:border-box;display:flex;flex-direction:column;box-shadow:0 20px 40px -14px rgba(0,0,0,0.6);">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 20 12 5l8.5 15"/><path d="M12 5v15"/></svg><span style="font-size:12px;font-weight:700;color:var(--t2);">난지캠핑장 · 가까운 주말</span><span style="margin-left:auto;font-size:11px;color:var(--t3);">방금</span></div>
+          <div style="display:flex;gap:12px;flex:1;">
+            <div style="flex:1;background:rgba(10,132,255,0.12);border:1px solid rgba(10,132,255,0.24);border-radius:12px;padding:11px;display:flex;flex-direction:column;">
+              <span style="font-size:12px;color:var(--blue);font-weight:700;">{{ vm.nearFri.date }}</span>
+              <span style="font-size:11px;color:var(--t2);margin-top:1px;">총 {{ vm.nearFri.total }}자리 · {{ vm.nearFri.status }}</span>
+              <span style="margin-top:auto;font-size:12px;font-family:'SF Mono',monospace;color:var(--t1);font-variant-numeric:tabular-nums;">{{ vm.nearFri.abcd }}</span>
+            </div>
+            <div style="flex:1;background:rgba(48,209,88,0.12);border:1px solid rgba(48,209,88,0.24);border-radius:12px;padding:11px;display:flex;flex-direction:column;">
+              <span style="font-size:12px;color:var(--green);font-weight:700;">{{ vm.nearSat.date }}</span>
+              <span style="font-size:11px;color:var(--t2);margin-top:1px;">총 {{ vm.nearSat.total }}자리 · {{ vm.nearSat.status }}</span>
+              <span style="margin-top:auto;font-size:12px;font-family:'SF Mono',monospace;color:var(--t1);font-variant-numeric:tabular-nums;">{{ vm.nearSat.abcd }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Large -->
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="font-size:11.5px;color:var(--t3);font-weight:600;">Large</div>
+        <div style="width:364px;height:364px;border-radius:22px;background:linear-gradient(165deg,#2a2e34,#1c1f24);border:1px solid var(--sep);padding:18px;box-sizing:border-box;display:flex;flex-direction:column;box-shadow:0 20px 40px -14px rgba(0,0,0,0.6);">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:14px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 20 12 5l8.5 15"/><path d="M12 5v15"/></svg><span style="font-size:13px;font-weight:700;">난지캠핑장 · 다가오는 4개 주말</span></div>
+          <div style="display:flex;flex-direction:column;gap:9px;flex:1;">
+            <sc-for list="{{ vm.widgetRows }}" as="w" hint-placeholder-count="4">
+              <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--sep);">
+                <div style="width:34px;text-align:center;"><div style="font-size:17px;font-weight:800;line-height:1;">{{ w.day }}</div><div style="{{ w.wdStyle }}">{{ w.wd }}</div></div>
+                <div style="flex:1;"><div style="font-size:12.5px;font-weight:600;">{{ w.monthLabel }}</div><div style="font-size:11px;color:var(--t2);font-variant-numeric:tabular-nums;">{{ w.abcd }}</div></div>
+                <div style="text-align:right;"><span style="font-size:18px;font-weight:800;{{ w.totalColor }}font-variant-numeric:tabular-nums;">{{ w.total }}</span><div style="font-size:10px;color:var(--t3);">{{ w.status }}</div></div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="font-size:11px;color:var(--t3);text-align:center;margin-top:10px;">공유 저장소(App Group) 기반 · 방금 갱신</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 4 · SETTINGS ══════════ -->
+  <div style="max-width:1280px;margin:0 auto 56px;">
+    <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:16px;">
+      <div style="font-size:13px;font-weight:700;letter-spacing:0.3px;color:var(--t1);background:var(--elev);border:1px solid var(--sep);padding:5px 12px;border-radius:8px;">04 · 설정</div>
+      <div style="font-size:13px;color:var(--t3);">System Settings 스타일 그룹 리스트</div>
+    </div>
+    <div style="max-width:560px;background:var(--win);border:1px solid var(--sep);border-radius:16px;overflow:hidden;box-shadow:0 30px 60px -20px rgba(0,0,0,0.6);">
+      <div style="display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--sep);background:linear-gradient(180deg,#2f2f33,#28282c);">
+        <div style="display:flex;gap:8px;"><div style="width:12px;height:12px;border-radius:50%;background:#ff5f57;"></div><div style="width:12px;height:12px;border-radius:50%;background:#febc2e;"></div><div style="width:12px;height:12px;border-radius:50%;background:#28c840;"></div></div>
+        <span style="font-size:14px;font-weight:700;margin-left:4px;">설정</span>
+      </div>
+      <div style="padding:18px;display:flex;flex-direction:column;gap:20px;">
+        <div>
+          <div style="font-size:11.5px;color:var(--t3);font-weight:700;letter-spacing:0.4px;text-transform:uppercase;margin-bottom:8px;padding-left:2px;">갱신</div>
+          <div style="background:var(--card);border:1px solid var(--sep);border-radius:12px;overflow:hidden;">
+            <div style="display:flex;align-items:center;padding:12px 14px;border-bottom:1px solid var(--sep);"><span style="font-size:13.5px;flex:1;">자동 갱신</span><div style="width:34px;height:20px;border-radius:20px;background:var(--green);position:relative;"><div style="position:absolute;top:2px;left:16px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.3);"></div></div></div>
+            <div style="display:flex;align-items:center;padding:12px 14px;"><span style="font-size:13.5px;flex:1;">갱신 주기</span><span style="font-size:13px;color:var(--t2);">15분 ⌄</span></div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11.5px;color:var(--t3);font-weight:700;letter-spacing:0.4px;text-transform:uppercase;margin-bottom:8px;padding-left:2px;">관심 조건</div>
+          <div style="background:var(--card);border:1px solid var(--sep);border-radius:12px;overflow:hidden;">
+            <div style="display:flex;align-items:center;padding:12px 14px;border-bottom:1px solid var(--sep);"><span style="font-size:13.5px;flex:1;">관심 요일</span><div style="display:flex;gap:6px;"><span style="font-size:12px;font-weight:600;padding:4px 10px;border-radius:7px;background:rgba(10,132,255,0.2);color:var(--blue);">금</span><span style="font-size:12px;font-weight:600;padding:4px 10px;border-radius:7px;background:rgba(48,209,88,0.2);color:var(--green);">토</span></div></div>
+            <div style="display:flex;align-items:center;padding:12px 14px;border-bottom:1px solid var(--sep);"><span style="font-size:13.5px;flex:1;">관심 사이트</span><span style="font-size:13px;color:var(--t2);">A · B · C · D ⌄</span></div>
+            <div style="display:flex;align-items:center;padding:12px 14px;"><span style="font-size:13.5px;flex:1;">최소 잔여 수량</span><span style="font-size:13px;color:var(--t2);font-variant-numeric:tabular-nums;">2자리 이상 ⌄</span></div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11.5px;color:var(--t3);font-weight:700;letter-spacing:0.4px;text-transform:uppercase;margin-bottom:8px;padding-left:2px;">알림 · 표시</div>
+          <div style="background:var(--card);border:1px solid var(--sep);border-radius:12px;overflow:hidden;">
+            <div style="display:flex;align-items:center;padding:12px 14px;border-bottom:1px solid var(--sep);"><span style="font-size:13.5px;flex:1;">새 빈자리 알림</span><div style="width:34px;height:20px;border-radius:20px;background:var(--green);position:relative;"><div style="position:absolute;top:2px;left:16px;width:16px;height:16px;border-radius:50%;background:#fff;"></div></div></div>
+            <div style="display:flex;align-items:center;padding:12px 14px;border-bottom:1px solid var(--sep);"><span style="font-size:13.5px;flex:1;">메뉴바 표시</span><span style="font-size:13px;color:var(--t2);">가능한 날짜 수 ⌄</span></div>
+            <div style="display:flex;align-items:center;padding:12px 14px;"><span style="font-size:13.5px;flex:1;">테마</span><div style="display:flex;background:rgba(0,0,0,0.3);border-radius:7px;padding:2px;"><span style="font-size:12px;padding:3px 9px;color:var(--t2);">시스템</span><span style="font-size:12px;padding:3px 9px;color:var(--t2);">라이트</span><span style="font-size:12px;padding:3px 9px;border-radius:5px;background:var(--elev);color:var(--t1);font-weight:600;">다크</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 5 · STATES ══════════ -->
+  <div style="max-width:1280px;margin:0 auto;">
+    <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:16px;">
+      <div style="font-size:13px;font-weight:700;letter-spacing:0.3px;color:var(--t1);background:var(--elev);border:1px solid var(--sep);padding:5px 12px;border-radius:8px;">05 · 상태</div>
+      <div style="font-size:13px;color:var(--t3);">로딩 · 오류(캐시) · 데이터 없음 · 전체 마감</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
+      <!-- loading -->
+      <div style="background:var(--win);border:1px solid var(--sep);border-radius:14px;padding:18px;min-height:200px;display:flex;flex-direction:column;gap:12px;">
+        <div style="font-size:12px;font-weight:700;color:var(--t2);">최초 로딩</div>
+        <div style="height:14px;border-radius:5px;background:linear-gradient(90deg,rgba(255,255,255,0.05),rgba(255,255,255,0.12),rgba(255,255,255,0.05));background-size:420px 100%;animation:camp-shimmer 1.4s infinite;width:70%;"></div>
+        <div style="display:flex;gap:8px;"><div style="flex:1;height:52px;border-radius:9px;background:linear-gradient(90deg,rgba(255,255,255,0.05),rgba(255,255,255,0.12),rgba(255,255,255,0.05));background-size:420px 100%;animation:camp-shimmer 1.4s infinite;"></div><div style="flex:1;height:52px;border-radius:9px;background:linear-gradient(90deg,rgba(255,255,255,0.05),rgba(255,255,255,0.12),rgba(255,255,255,0.05));background-size:420px 100%;animation:camp-shimmer 1.4s infinite;"></div></div>
+        <div style="height:12px;border-radius:5px;background:linear-gradient(90deg,rgba(255,255,255,0.05),rgba(255,255,255,0.12),rgba(255,255,255,0.05));background-size:420px 100%;animation:camp-shimmer 1.4s infinite;width:90%;"></div>
+        <div style="height:12px;border-radius:5px;background:linear-gradient(90deg,rgba(255,255,255,0.05),rgba(255,255,255,0.12),rgba(255,255,255,0.05));background-size:420px 100%;animation:camp-shimmer 1.4s infinite;width:50%;"></div>
+      </div>
+      <!-- error/cache -->
+      <div style="background:var(--win);border:1px solid rgba(255,159,10,0.3);border-radius:14px;padding:18px;min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+        <div style="font-size:13.5px;font-weight:700;">예약 정보를 가져오지 못했습니다</div>
+        <div style="font-size:12px;color:var(--t2);line-height:1.5;">마지막으로 확인한 <b style="color:var(--t1);">7분 전</b> 데이터를 표시합니다.</div>
+        <div style="margin-top:4px;padding:7px 16px;border-radius:9px;background:var(--elev);border:1px solid var(--sep);font-size:12.5px;font-weight:600;cursor:pointer;">다시 시도</div>
+      </div>
+      <!-- empty -->
+      <div style="background:var(--win);border:1px solid var(--sep);border-radius:14px;padding:18px;min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        <div style="font-size:13.5px;font-weight:700;">아직 예약이 열리지 않았습니다</div>
+        <div style="font-size:12px;color:var(--t2);line-height:1.5;">8월 예약은 <b style="color:var(--t1);">매월 1일</b> 오픈됩니다. 오픈 시 알림을 보내드릴게요.</div>
+        <div style="margin-top:4px;padding:7px 16px;border-radius:9px;background:rgba(10,132,255,0.16);border:1px solid rgba(10,132,255,0.3);color:var(--blue);font-size:12.5px;font-weight:600;cursor:pointer;">오픈 알림 받기</div>
+      </div>
+      <!-- all closed -->
+      <div style="background:var(--win);border:1px solid var(--sep);border-radius:14px;padding:18px;min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--gray)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <div style="font-size:13.5px;font-weight:700;">현재 금·토 빈자리 없음</div>
+        <div style="font-size:12px;color:var(--t2);line-height:1.5;">모든 주말 사이트가 마감되었습니다. 취소분이 나오면 알려드릴게요.</div>
+        <div style="margin-top:4px;padding:7px 16px;border-radius:9px;background:var(--elev);border:1px solid var(--sep);font-size:12.5px;font-weight:600;cursor:pointer;">취소 대기 알림</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1376,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  state = { data: null, view: 'calendar', selKey: '7-24', filterWd: 'all', onlyAvail: false, auto: true, spin: false };
+
+  componentDidMount() {
+    fetch('camp_data.json').then(r => r.json()).then(d => this.setState({ data: d })).catch(() => {});
+  }
+
+  // ---- helpers ----
+  WD = ['일','월','화','수','목','금','토'];
+  ORDER = ['프리','A','B','C','D','바비큐','캠파'];
+  NAMES = { '프리':'프리캠핑', 'A':'일반 A형', 'B':'일반 B형', 'C':'일반 C형', 'D':'일반 D형', '바비큐':'바비큐존', '캠파':'캠프파이어존' };
+
+  statusOf(total) {
+    if (total <= 0) return { label: '마감', color: 'color:var(--gray);', sym: '—', bg: 'background:rgba(142,142,147,0.16);' };
+    if (total <= 10) return { label: '임박', color: 'color:var(--orange);', sym: '▲', bg: 'background:rgba(255,159,10,0.16);' };
+    return { label: '여유', color: 'color:var(--green);', sym: '●', bg: 'background:rgba(48,209,88,0.16);' };
+  }
+  chipColor(r) { return r === 0 ? 'var(--gray)' : (r <= 3 ? 'var(--orange)' : 'var(--green)'); }
+  totalOf(rec) { return this.ORDER.reduce((s, k) => s + Math.max(0, rec[k] || 0), 0); }
+
+  buildCells(month) {
+    const g = (this.state.data && this.state.data.grid[month]) || {};
+    const first = new Date(2026, month - 1, 1);
+    const lead = first.getDay();
+    const days = new Date(2026, month, 0).getDate();
+    const today = new Date(2026, 6, 16);
+    const cells = [];
+    for (let i = 0; i < lead; i++) cells.push({ empty: true, filled: false, key: 'e' + month + '-' + i });
+    for (let d = 1; d <= days; d++) {
+      const wd = (lead + d - 1) % 7;
+      const rec = g[d] || {};
+      const hasData = Object.keys(rec).length > 0;
+      const total = this.totalOf(rec);
+      const dateObj = new Date(2026, month - 1, d);
+      const isPast = dateObj < today;
+      const isToday = month === 7 && d === 16;
+      const isFri = wd === 5, isSat = wd === 6, isWknd = isFri || isSat;
+      const st = this.statusOf(total);
+      const key = month + '-' + d;
+      const sel = this.state.selKey === key;
+      let bg = 'transparent';
+      if (isFri) bg = 'rgba(10,132,255,0.10)';
+      else if (isSat) bg = 'rgba(48,209,88,0.09)';
+      else if (hasData) bg = 'rgba(255,255,255,0.025)';
+      const ring = sel ? 'box-shadow:0 0 0 2px var(--accent);' : 'border:1px solid var(--sep);';
+      const box = `display:flex;flex-direction:column;gap:3px;min-height:${isWknd && hasData ? 86 : 60}px;padding:7px;border-radius:9px;background:${bg};${ring}cursor:pointer;opacity:${isPast ? 0.4 : 1};transition:box-shadow .18s;`;
+      const dayColor = isToday ? 'var(--accent)' : (wd === 0 ? 'var(--red)' : (wd === 6 ? 'var(--blue)' : 'var(--t2)'));
+      const dayStyle = `font-size:12px;font-weight:700;color:${dayColor};display:flex;align-items:center;gap:3px;` + (isToday ? 'background:var(--accent);color:#fff;border-radius:5px;padding:0 5px;' : '');
+      const chips = isWknd && hasData ? ['A','B','C','D'].filter(s => rec[s] != null).map(s => {
+        const r = Math.max(0, rec[s]);
+        return { label: `${s} ${r}`, style: `font-size:9.5px;font-weight:600;padding:1px 5px;border-radius:5px;font-variant-numeric:tabular-nums;background:rgba(255,255,255,0.06);color:${this.chipColor(r)};opacity:${r === 0 ? 0.55 : 1};` };
+      }) : [];
+      cells.push({
+        empty: false, filled: true, key, day: d, hasData, total,
+        dayStyle, statusLabel: st.label,
+        statusStyle: `font-size:10px;font-weight:700;${st.color}`,
+        totalStyle: `font-size:12px;font-weight:800;font-variant-numeric:tabular-nums;${total > 0 ? st.color : 'color:var(--gray);'}`,
+        box, showChips: chips.length > 0, chips,
+        select: () => this.setState({ selKey: key })
+      });
+    }
+    return cells;
+  }
+
+  weekendEntries() {
+    const out = [];
+    const today = new Date(2026, 6, 16);
+    for (const m of [7, 8]) {
+      const g = (this.state.data && this.state.data.grid[m]) || {};
+      const days = new Date(2026, m, 0).getDate();
+      for (let d = 1; d <= days; d++) {
+        const dateObj = new Date(2026, m - 1, d);
+        const wd = dateObj.getDay();
+        if ((wd === 5 || wd === 6) && dateObj >= today) {
+          const rec = g[d] || {};
+          out.push({ m, d, wd, total: this.totalOf(rec), rec });
+        }
+      }
+    }
+    return out;
+  }
+
+  nearest(wdWant) {
+    const e = this.weekendEntries().filter(x => x.wd === wdWant && x.total > 0)[0];
+    if (!e) return { date: '없음', dayNum: '—', total: 0, status: '—', abcd: '', dayFull: '' };
+    const st = this.statusOf(e.total);
+    const abcd = ['A','B','C','D'].map(s => `${s}${Math.max(0, e.rec[s] || 0)}`).join(' ');
+    return { date: `${e.m}월 ${e.d}일 ${wdWant === 5 ? '금' : '토'}요일`, dayNum: e.d, total: e.total, status: st.label, abcd, wdFull: wdWant === 5 ? '금요일' : '토요일', m: e.m, d: e.d };
+  }
+
+  renderVals() {
+    const j = this.buildCells(7), a = this.buildCells(8);
+    const we = this.weekendEntries();
+    const nearFri = this.nearest(5), nearSat = this.nearest(6);
+    const nearWkE = we.filter(x => x.total > 0)[0];
+    const nearWk = nearWkE ? (() => { const st = this.statusOf(nearWkE.total); return { date: `${nearWkE.m}월 ${nearWkE.d}일`, wdFull: nearWkE.wd === 5 ? '금요일' : '토요일', total: nearWkE.total, status: st.label }; })() : { date: '—', wdFull: '', total: 0, status: '—' };
+
+    const julWeekends = we.filter(x => x.m === 7 && x.total > 0).length;
+    const augWeekends = we.filter(x => x.m === 8 && x.total > 0).length;
+    let best = { total: -1, m: 7, d: 1 };
+    for (const x of we) if (x.total > best.total) best = { total: x.total, m: x.m, d: x.d };
+    const bestDay = { date: `${best.m}월 ${best.d}일`, total: Math.max(0, best.total) };
+
+    // detail
+    const [dm, dd] = this.state.selKey.split('-').map(Number);
+    const drec = (this.state.data && this.state.data.grid[dm] && this.state.data.grid[dm][dd]) || {};
+    const cap = (this.state.data && this.state.data.cap) || {};
+    const dtot = this.totalOf(drec);
+    const dwd = new Date(2026, dm - 1, dd).getDay();
+    const dst = this.statusOf(dtot);
+    const detail = {
+      date: `${dm}월 ${dd}일 ${this.WD[dwd]}요일`,
+      total: dtot, statusLabel: dst.label, statusColor: dst.color, statusSym: dst.sym, statusBg: dst.bg,
+      sites: this.ORDER.filter(s => drec[s] != null).map(s => {
+        const r = Math.max(0, drec[s]), c = cap[s] || r || 1;
+        const pct = Math.min(100, Math.round(r / c * 100));
+        return { name: this.NAMES[s], remain: r, cap: c, color: `color:${this.chipColor(r)};`, bar: `height:100%;width:${pct}%;border-radius:3px;background:${this.chipColor(r)};` };
+      })
+    };
+
+    // list view
+    let listSrc = we.slice();
+    if (this.state.filterWd === 'fri') listSrc = listSrc.filter(x => x.wd === 5);
+    if (this.state.filterWd === 'sat') listSrc = listSrc.filter(x => x.wd === 6);
+    if (this.state.onlyAvail) listSrc = listSrc.filter(x => x.total > 0);
+    const listRows = listSrc.map(x => {
+      const st = this.statusOf(x.total);
+      const key = x.m + '-' + x.d;
+      return {
+        day: x.d, wd: this.WD[x.wd] + '요일',
+        wdStyle: `font-size:11px;font-weight:600;color:${x.wd === 5 ? 'var(--blue)' : 'var(--green)'};`,
+        monthLabel: `${x.m}월 ${x.d}일`, total: x.total, status: st.label,
+        totalColor: `${x.total > 0 ? st.color : 'color:var(--gray);'}`,
+        box: `display:flex;align-items:center;gap:14px;padding:11px 14px;border-radius:12px;background:${this.state.selKey === key ? 'rgba(10,132,255,0.10)' : 'var(--card)'};border:1px solid ${this.state.selKey === key ? 'rgba(10,132,255,0.35)' : 'var(--sep)'};cursor:pointer;`,
+        chips: ['A','B','C','D'].map(s => { const r = Math.max(0, x.rec[s] || 0); return { label: s, remain: r, box: 'flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;border-radius:8px;background:rgba(255,255,255,0.04);', num: `font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;color:${this.chipColor(r)};` }; }),
+        select: () => this.setState({ selKey: key })
+      };
+    });
+
+    // popover upcoming
+    const popRows = we.slice(0, 5).map(x => {
+      const st = this.statusOf(x.total);
+      return { label: `${x.m}.${x.d}`, wd: this.WD[x.wd], wdStyle: `font-size:11px;font-weight:700;color:${x.wd === 5 ? 'var(--blue)' : 'var(--green)'};`, total: x.total, dot: `width:8px;height:8px;border-radius:50%;background:${x.total <= 0 ? 'var(--gray)' : (x.total <= 10 ? 'var(--orange)' : 'var(--green)')};` };
+    });
+
+    // widget large: next 4 weekends
+    const widgetRows = we.filter(x => x.total > 0).slice(0, 4).map(x => {
+      const st = this.statusOf(x.total);
+      return { day: x.d, wd: this.WD[x.wd], wdStyle: `font-size:10px;font-weight:600;color:${x.wd === 5 ? 'var(--blue)' : 'var(--green)'};`, monthLabel: `${x.m}월 ${x.d}일`, abcd: ['A','B','C','D'].map(s => `${s}${Math.max(0, x.rec[s] || 0)}`).join(' '), total: x.total, status: st.label, totalColor: st.color };
+    });
+
+    const segOn = 'font-size:13px;font-weight:600;padding:5px 16px;border-radius:7px;background:var(--elev);color:var(--t1);cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,0.3);';
+    const segOff = 'font-size:13px;font-weight:500;padding:5px 16px;border-radius:7px;color:var(--t2);cursor:pointer;';
+    const chipOn = (c) => `font-size:12px;font-weight:600;padding:5px 12px;border-radius:8px;background:${c};color:#fff;cursor:pointer;`;
+    const chipOff = 'font-size:12px;font-weight:500;padding:5px 12px;border-radius:8px;background:var(--elev);border:1px solid var(--sep);color:var(--t2);cursor:pointer;';
+
+    return {
+      vm: {
+        julCells: j, augCells: a, listRows, listCount: listRows.length, popRows, widgetRows,
+        nearFri, nearSat, nearWk, julWeekends, augWeekends, bestDay, detail,
+        openCount: we.filter(x => x.total > 0).length,
+        isCalendar: this.state.view === 'calendar', isList: this.state.view === 'list',
+        segCalendar: this.state.view === 'calendar' ? segOn : segOff,
+        segList: this.state.view === 'list' ? segOn : segOff,
+        showCalendar: () => this.setState({ view: 'calendar' }),
+        showList: () => this.setState({ view: 'list' }),
+        chipFri: this.state.filterWd === 'fri' ? chipOn('var(--blue)') : chipOff,
+        chipSat: this.state.filterWd === 'sat' ? chipOn('var(--green)') : chipOff,
+        chipAvail: this.state.onlyAvail ? chipOn('var(--accent)') : chipOff,
+        setFri: () => this.setState(s => ({ filterWd: s.filterWd === 'fri' ? 'all' : 'fri', view: 'list' })),
+        setSat: () => this.setState(s => ({ filterWd: s.filterWd === 'sat' ? 'all' : 'sat', view: 'list' })),
+        toggleAvail: () => this.setState(s => ({ onlyAvail: !s.onlyAvail, view: 'list' })),
+        toggleAuto: () => this.setState(s => ({ auto: !s.auto })),
+        autoKnob: `position:absolute;top:2px;left:${this.state.auto ? 16 : 2}px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.3);transition:left .2s;`,
+        refresh: () => { this.setState({ spin: true }); setTimeout(() => this.setState({ spin: false }), 1100); },
+        refreshSpin: this.state.spin ? 'transform-origin:center;animation:camp-spin .9s linear infinite;' : ''
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>
