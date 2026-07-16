@@ -14,22 +14,25 @@ yeyak의 **예약 달력 AJAX**(`selectListReservCalAjax.do`)는 WAF(WebMonitor)
 
 ## 잔여 수집 방법 (권장 순)
 
-### ① 브라우저 수집 — 가장 확실 (WAF 항상 통과) ★권장
-`browser_collect.js`를 **yeyak 사이트 콘솔에 붙여넣기**:
-```
-1) 브라우저에서 https://yeyak.seoul.go.kr 접속
-2) F12 → Console 에 crawler/browser_collect.js 전체 붙여넣고 Enter
-3) nanji_calendar.json 자동 다운로드
-4) ~/SeoulCampingWidget/crawler/nanji_calendar.json 로 저장 → 앱에서 [갱신]
-```
-사용자의 실제 브라우저 세션(이미 WAF 통과)을 쓰므로 항상 동작한다. 앱/웹이 이 JSON을 읽는다.
+> ⚠️ **빠른 자동 요청은 브라우저에서도 WAF에 차단된다.** 아래 ①(DOM 읽기)만이
+> 네트워크 요청을 하지 않아 안전하다. ②③(fetch/자동 크롤)은 IP를 차단시킬 수 있으니
+> 비권장(교육/참고용).
 
-### ② 자동 크롤러 — 깨끗한 IP에서 정중히 1회
-`node calendar.mjs` — 실브라우저로 상세페이지 진입 후 `fnDraw()`를 호출해 달력 AJAX를
-가로챈다. IP가 플래그 안 된 상태에서만 통과(차단 감지 시 즉시 중단·백오프).
+### ① 페이지 DOM 읽기 — 유일한 안전 방법 ★권장 (`page_collect.js`)
+네트워크 요청을 **전혀 하지 않고**, 사람이 직접 연 상세페이지에 **이미 렌더된 달력**
+(신청수/총모집수)을 DOM에서 읽어 누적·다운로드한다. WAF를 자극하지 않는다.
+```
+1) 난지캠핑장 상세페이지를 사람이 직접 연다(달력 보이는 화면).
+2) F12 → Console 에 crawler/page_collect.js 붙여넣고 Enter.
+3) 그 서비스 저장 + 지금까지 누적본이 nanji_calendar.json 로 다운로드.
+4) 다른 사이트/월 페이지로 '천천히' 이동해 반복(급하게 넘기지 말 것).
+5) 마지막 파일을 ~/SeoulCampingWidget/crawler/ 에 저장 → 앱 [갱신].
+```
 
-### ③ 서비스 단위(접수중/마감)만
-`node crawl.mjs` — 목록만으로 서비스 상태를 얻는다(일자별 잔여 없음).
+### ②③ (비권장) fetch/자동 크롤 — WAF 차단 유발
+`browser_collect.js`(브라우저 fetch)·`calendar.mjs`(서버 크롤)는 빠른 반복 요청으로
+WAF(`ipRedirect.do?threatGb=DNP`)를 유발한다. **사용하지 말 것.** 차단되면 탭 닫고
+10~30분 대기(또는 IP 변경) 후 ①로 진행.
 
 ## 환경 준비 (node 없을 때)
 
