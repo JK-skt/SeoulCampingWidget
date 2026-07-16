@@ -46,14 +46,19 @@ async function crawlReal(month) {
     // 1) 진입 → 세션 쿠키 확보
     await page.goto(`${BASE}/web/main.do`, { waitUntil: "networkidle" });
 
-    // 2) 통합검색으로 난지 캠핑 서비스 목록 수집
+    // 2) 캠핑장 카테고리 목록에서 난지캠핑장 svc_id 수집
+    //    (실측: 이 목록은 정적 HTML에 svc_id·상태가 포함 — 순수 HTTP로도 가능하지만
+    //     일관성을 위해 브라우저로 연다. code=T500(시설) & dCode=T502(캠핑장))
     await page.goto(
-      `${BASE}/web/search/selectPageListTotalSearch.do?searchKeyword=${encodeURIComponent(SEARCH_KEYWORD)}`,
+      `${BASE}/web/search/selectPageListDetailSearchImg.do?code=T500&dCode=T502`,
       { waitUntil: "networkidle" }
     );
-    // 검색 결과 앵커에서 rsv_svc_id 추출(예: selectReservView.do?rsv_svc_id=S...)
-    const svcIds = await page.$$eval("a[href*='rsv_svc_id=']", (as) =>
-      Array.from(new Set(as.map((a) => (a.getAttribute("href").match(/rsv_svc_id=([A-Z0-9]+)/) || [])[1]).filter(Boolean)))
+    // onclick="fnDetailPage('SVCID',...)" title="... 난지캠핑장" 항목만.
+    const svcIds = await page.$$eval("a[onclick*='fnDetailPage']", (as) =>
+      as
+        .filter((a) => (a.getAttribute("title") || "").includes("난지캠핑장"))
+        .map((a) => (a.getAttribute("onclick").match(/fnDetailPage\('([A-Z0-9]+)'/) || [])[1])
+        .filter(Boolean)
     );
 
     // 3) 각 서비스 상세를 열어 해당 월의 잔여 수량을 읽는다.
