@@ -6,7 +6,12 @@ cd "$(dirname "$0")"
 APP="SeoulCamping.app"
 BIN="SeoulCamping"
 BUNDLE_ID="com.seoulcamping.menubar"
-SDK="$(xcrun --show-sdk-path)"
+
+# 정식 Xcode 라이선스 미동의 시에도 빌드되도록 CommandLineTools 툴체인을 우선 사용.
+if [ -d /Library/Developer/CommandLineTools ]; then
+  export DEVELOPER_DIR="${DEVELOPER_DIR:-/Library/Developer/CommandLineTools}"
+fi
+SDK="$(xcrun --show-sdk-path 2>/dev/null)"
 
 echo "▶ 컴파일 (swiftc, macOS 13)…"
 rm -rf "$APP"
