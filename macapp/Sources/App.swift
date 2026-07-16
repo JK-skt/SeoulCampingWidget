@@ -27,13 +27,29 @@ struct SeoulCampingApp: App {
 final class CampViewModel: ObservableObject {
     @Published var services: [CampService] = []
     @Published var isLoading = false
+    @Published var isBlocked = false
     @Published var lastUpdated: Date?
+    /// 달력(사이트별 날짜 잔여). 라이브 미가용 시 번들 샘플.
+    @Published var calendar: CalendarData = CalendarStore.loadBundled()
+
+    var grid: [String: [Int: [String: Int]]] { CalendarStore.grid(calendar) }
+
+    /// "month-site" → 예약 URL (달력 칩 클릭 시 이동).
+    var siteURL: [String: URL] {
+        var m: [String: URL] = [:]
+        for svc in calendar.services {
+            if let mm = svc.month, let url = svc.reservationURL { m["\(mm)-\(svc.site)"] = url }
+        }
+        return m
+    }
 
     private var timer: Timer?
 
     init() {
+        // 캐시 즉시 표시(재시작 시 재요청 최소화)
+        if let cached = YeyakClient.loadCache() { services = cached }
         Task { await refresh() }
-        // 15분마다 자동 새로고침
+        // 15분마다 자동 새로고침(저빈도 = anti-bot 미유발)
         timer = Timer.scheduledTimer(withTimeInterval: 900, repeats: true) { [weak self] _ in
             Task { await self?.refresh() }
         }
@@ -52,9 +68,16 @@ final class CampViewModel: ObservableObject {
     func refresh() async {
         isLoading = true
         defer { isLoading = false }
-        let list = await YeyakClient.fetchNanji()
-        if !list.isEmpty { services = list }   // 간헐적 빈 응답 시 기존 유지
-        lastUpdated = Date()
+        switch await YeyakClient.shared.fetch() {
+        case .ok(let list):
+            services = list
+            isBlocked = false
+            lastUpdated = Date()
+        case .blocked:
+            isBlocked = true          // 차단 감지: 기존/캐시 유지, 다음 주기에 재시도
+        case .failed:
+            break                     // 실패: 기존 데이터 유지
+        }
     }
 }
 
@@ -95,26 +118,23 @@ struct PopoverView: View {
 
             Divider()
 
-            // 서비스 목록
-            if vm.services.isEmpty {
-                Text("불러오는 중…").font(.caption).foregroundStyle(.secondary)
-            } else {
-                ForEach(vm.services) { s in
-                    Button {
-                        openURL(s.reservationURL)
-                    } label: {
-                        HStack(spacing: 6) {
-                            Text(s.isOpen ? "접수중" : s.status)
-                                .font(.caption2).bold()
-                                .foregroundStyle(s.isOpen ? .green : .secondary)
-                                .frame(width: 44, alignment: .leading)
-                            Text(s.zoneLabel).font(.caption).frame(width: 60, alignment: .leading)
-                            Text(s.title.replacingOccurrences(of: "26년 한강공원 난지캠핑장", with: "").trimmingCharacters(in: .whitespaces))
-                                .font(.caption).foregroundStyle(.secondary).lineLimit(1)
-                        }
-                    }
-                    .buttonStyle(.plain)
+            // 2개월 달력(날짜별 사이트별 잔여)
+            Text("이번달 · 다음달 · 사이트별 잔여").font(.caption).bold()
+            ScrollView {
+                VStack(spacing: 10) {
+                    MiniMonth(year: 2026, month: 7, title: "이번달", grid: vm.grid, siteURL: vm.siteURL)
+                    MiniMonth(year: 2026, month: 8, title: "다음달", grid: vm.grid, siteURL: vm.siteURL)
                 }
+            }
+            .frame(maxHeight: 320)
+            if vm.calendar.services.contains(where: { $0.site == "C" }) && vm.calendar.generatedAt.contains("예시") {
+                Text("※ C형=실측 · A/B/D 등=예시 · 차단 해제 시 전 사이트 라이브")
+                    .font(.system(size: 9)).foregroundStyle(.secondary)
+            }
+
+            if vm.isBlocked {
+                Text("⚠︎ 일시적 접근 제한 — 캐시된 정보 표시 중")
+                    .font(.caption2).foregroundStyle(.orange)
             }
 
             Divider()
@@ -129,6 +149,87 @@ struct PopoverView: View {
             }
         }
         .padding(14)
-        .frame(width: 320)
+        .frame(width: 460)
+    }
+}
+
+/// 한 달 미니 달력: 각 날짜에 총 잔여 + 사이트별 잔여 칩(클릭 시 예약 페이지).
+struct MiniMonth: View {
+    let year: Int
+    let month: Int
+    let title: String
+    let grid: [String: [Int: [String: Int]]]
+    /// "month-site" → 예약 URL.
+    let siteURL: [String: URL]
+
+    private let order = ["프리", "A", "B", "C", "D", "바비큐", "캠파"]
+    private let cols = Array(repeating: GridItem(.flexible(), spacing: 2), count: 7)
+
+    private var monthGrid: [Int: [String: Int]] { grid["\(year)-\(month)"] ?? [:] }
+
+    private func chipColor(_ r: Int) -> Color { r == 0 ? .secondary : (r <= 3 ? .orange : .green) }
+
+    /// 1일의 요일(0=일)과 총 일수.
+    private var layout: (lead: Int, days: Int) {
+        var comps = DateComponents(); comps.year = year; comps.month = month; comps.day = 1
+        let cal = Calendar(identifier: .gregorian)
+        let first = cal.date(from: comps)!
+        let lead = cal.component(.weekday, from: first) - 1   // 0=일
+        let days = cal.range(of: .day, in: .month, for: first)!.count
+        return (lead, days)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text("\(title) \(year).\(String(format: "%02d", month))").font(.caption).bold()
+            LazyVGrid(columns: cols, spacing: 2) {
+                ForEach(["일","월","화","수","목","금","토"], id: \.self) { w in
+                    Text(w).font(.system(size: 8)).foregroundStyle(.secondary)
+                }
+                ForEach(0..<layout.lead, id: \.self) { _ in Color.clear.frame(height: 1) }
+                ForEach(1...layout.days, id: \.self) { day in
+                    cell(day)
+                }
+            }
+        }
+    }
+
+    private func chipSites(_ rec: [String: Int]) -> [String] {
+        Array(order.filter { rec[$0] != nil }.prefix(4))
+    }
+
+    /// 사이트별 잔여 칩. URL 있으면 클릭 시 예약 페이지로 이동.
+    @ViewBuilder private func chip(site: String, remain: Int) -> some View {
+        let label = Text("\(site)\(remain)")
+            .font(.system(size: 7))
+            .foregroundStyle(chipColor(remain))
+            .frame(maxWidth: .infinity, alignment: .leading)
+        if let url = siteURL["\(month)-\(site)"] {
+            Link(destination: url) { label }.buttonStyle(.plain)
+        } else {
+            label
+        }
+    }
+
+    @ViewBuilder private func cell(_ day: Int) -> some View {
+        let rec = monthGrid[day] ?? [:]
+        let total = rec.values.map { max(0, $0) }.reduce(0, +)
+        VStack(spacing: 1) {
+            HStack(spacing: 2) {
+                Text("\(day)").font(.system(size: 8)).foregroundStyle(.secondary)
+                Spacer(minLength: 0)
+                if !rec.isEmpty {
+                    Text("\(total)").font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(total > 0 ? .green : .secondary)
+                }
+            }
+            ForEach(chipSites(rec), id: \.self) { s in
+                chip(site: s, remain: max(0, rec[s] ?? 0))
+            }
+        }
+        .frame(height: 44, alignment: .top)
+        .padding(2)
+        .background(rec.isEmpty ? Color.clear : Color.white.opacity(0.05),
+                    in: RoundedRectangle(cornerRadius: 3))
     }
 }

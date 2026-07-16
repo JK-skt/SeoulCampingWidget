@@ -17,6 +17,7 @@ swiftc -parse-as-library -O \
 
 echo "▶ 리소스/아이콘 복사…"
 [ -f AppIcon.icns ] && cp AppIcon.icns "$APP/Contents/Resources/"
+[ -f sample_calendar.json ] && cp sample_calendar.json "$APP/Contents/Resources/"
 
 echo "▶ Info.plist 생성…"
 cat > "$APP/Contents/Info.plist" <<PLIST
