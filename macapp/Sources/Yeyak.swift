@@ -95,6 +95,25 @@ enum CalendarStore {
         return g
     }
 
+    /// 최신 달력 데이터 로드: 크롤러 출력 → 캐시 → 번들 샘플 순.
+    /// 갱신 버튼/타이머가 호출하면 크롤러가 새로 수집한 실측이 즉시 반영된다(재빌드 불필요).
+    static func loadFresh() -> CalendarData {
+        let fm = FileManager.default
+        let home = fm.homeDirectoryForCurrentUser
+        let candidates = [
+            URL(fileURLWithPath: "/tmp/nanji_calendar.json"),                                  // 크롤러 출력
+            home.appendingPathComponent("SeoulCampingWidget/crawler/nanji_calendar.json"),     // 저장소 내 산출물
+        ]
+        for url in candidates where fm.fileExists(atPath: url.path) {
+            if let data = try? Data(contentsOf: url),
+               let decoded = try? JSONDecoder().decode(CalendarData.self, from: data),
+               !decoded.services.isEmpty {
+                return decoded
+            }
+        }
+        return loadBundled()
+    }
+
     /// 앱 번들의 sample_calendar.json 로드(라이브 미가용 시 표시용).
     static func loadBundled() -> CalendarData {
         // 1) Bundle.main 리소스 2) 실행 파일 기준 Contents/Resources 경로 폴백

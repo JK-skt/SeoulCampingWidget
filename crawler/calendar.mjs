@@ -69,8 +69,11 @@ async function main() {
   }
 
   await browser.close();
-  writeFileSync("/tmp/nanji_calendar.json", JSON.stringify({ generatedAt: new Date().toISOString(), services: result }));
-  process.stdout.write("saved /tmp/nanji_calendar.json\n");
+  const payload = JSON.stringify({ generatedAt: new Date().toISOString(), services: result });
+  writeFileSync("/tmp/nanji_calendar.json", payload);
+  // 메뉴바 앱(loadFresh)도 읽을 수 있게 저장소 경로에도 저장.
+  try { writeFileSync(new URL("./nanji_calendar.json", import.meta.url).pathname, payload); } catch {}
+  process.stdout.write("saved /tmp/nanji_calendar.json (+crawler/nanji_calendar.json)\n");
 }
 
 main().catch((e) => { console.error("오류:", e.message); process.exit(1); });

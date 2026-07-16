@@ -29,8 +29,8 @@ final class CampViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var isBlocked = false
     @Published var lastUpdated: Date?
-    /// 달력(사이트별 날짜 잔여). 라이브 미가용 시 번들 샘플.
-    @Published var calendar: CalendarData = CalendarStore.loadBundled()
+    /// 달력(사이트별 날짜 잔여). 크롤러 출력 → 캐시 → 번들 샘플 순으로 로드.
+    @Published var calendar: CalendarData = CalendarStore.loadFresh()
 
     /// 자동 갱신 주기(초). 사용자가 팝오버에서 변경.
     @Published var refreshInterval: Double = 900 {
@@ -69,16 +69,11 @@ final class CampViewModel: ObservableObject {
     /// 금·토 예약 가능(접수중) 사이트 수. (캠핑 서비스는 주말 숙박 대상)
     var openWeekendCount: Int { services.filter { $0.isOpen }.count }
 
-    /// 구역(A~D)별 접수중 여부.
-    var zoneCounts: [(String, Int)] {
-        ["A", "B", "C", "D"].map { z in
-            (z, services.filter { $0.isOpen && $0.zone == z }.count)
-        }
-    }
-
     func refresh() async {
         isLoading = true
         defer { isLoading = false }
+        // 달력 데이터도 함께 갱신(크롤러가 새 실측을 저장했으면 즉시 반영).
+        calendar = CalendarStore.loadFresh()
         switch await YeyakClient.shared.fetch() {
         case .ok(let list):
             services = list
@@ -131,19 +126,26 @@ struct PopoverView: View {
 
             Divider()
 
-            // 2개월 달력(날짜별 사이트별 잔여)
-            Text("이번달 · 다음달 · 사이트별 잔여").font(.caption).bold()
+            // 2개월 달력(날짜별 사이트별 잔여) — 웹 위젯과 동일 정보
+            HStack {
+                Text("이번달 · 다음달 · 사이트별 잔여").font(.caption).bold()
+                Spacer()
+                // 범례(웹과 동일)
+                HStack(spacing: 8) {
+                    legendDot(.green, "여유")
+                    legendDot(.orange, "임박")
+                    legendDot(.secondary, "마감")
+                }
+            }
             ScrollView {
                 VStack(spacing: 10) {
                     MiniMonth(year: 2026, month: 7, title: "이번달", grid: vm.grid, siteURL: vm.siteURL)
                     MiniMonth(year: 2026, month: 8, title: "다음달", grid: vm.grid, siteURL: vm.siteURL)
                 }
             }
-            .frame(maxHeight: 320)
-            if vm.calendar.services.contains(where: { $0.site == "C" }) && vm.calendar.generatedAt.contains("예시") {
-                Text("※ C형=실측 · A/B/D 등=예시 · 차단 해제 시 전 사이트 라이브")
-                    .font(.system(size: 9)).foregroundStyle(.secondary)
-            }
+            .frame(maxHeight: 430)
+            Text("데이터: \(vm.calendar.generatedAt.isEmpty ? "-" : vm.calendar.generatedAt) · 칩 클릭=예약 페이지")
+                .font(.system(size: 9)).foregroundStyle(.secondary)
 
             if vm.isBlocked {
                 Text("⚠︎ 일시적 접근 제한 — 캐시된 정보 표시 중")
@@ -158,9 +160,10 @@ struct PopoverView: View {
                 }
                 Spacer()
                 Button {
-                    let p = "/Users/jhkoo/SeoulCampingWidget/webwidget/dist/calendar.html"
-                    if FileManager.default.fileExists(atPath: p) {
-                        openURL(URL(fileURLWithPath: p))
+                    let p = FileManager.default.homeDirectoryForCurrentUser
+                        .appendingPathComponent("SeoulCampingWidget/webwidget/dist/calendar.html")
+                    if FileManager.default.fileExists(atPath: p.path) {
+                        openURL(p)
                     } else {
                         openURL(URL(string: "https://yeyak.seoul.go.kr")!)
                     }
@@ -172,6 +175,14 @@ struct PopoverView: View {
         }
         .padding(14)
         .frame(width: 460)
+    }
+
+    /// 범례 점 + 라벨.
+    private func legendDot(_ color: Color, _ text: String) -> some View {
+        HStack(spacing: 3) {
+            Circle().fill(color).frame(width: 6, height: 6)
+            Text(text).font(.system(size: 9)).foregroundStyle(.secondary)
+        }
     }
 }
 
@@ -205,8 +216,9 @@ struct MiniMonth: View {
         VStack(alignment: .leading, spacing: 3) {
             Text("\(title) \(year).\(String(format: "%02d", month))").font(.caption).bold()
             LazyVGrid(columns: cols, spacing: 2) {
-                ForEach(["일","월","화","수","목","금","토"], id: \.self) { w in
-                    Text(w).font(.system(size: 8)).foregroundStyle(.secondary)
+                ForEach(Array(["일","월","화","수","목","금","토"].enumerated()), id: \.offset) { i, w in
+                    Text(w).font(.system(size: 8))
+                        .foregroundStyle(i == 0 ? .red : (i == 6 ? .blue : .secondary))
                 }
                 ForEach(0..<layout.lead, id: \.self) { _ in Color.clear.frame(height: 1) }
                 ForEach(1...layout.days, id: \.self) { day in
@@ -216,29 +228,53 @@ struct MiniMonth: View {
         }
     }
 
+    /// 해당 일의 요일 인덱스(0=일 … 6=토).
+    private func weekdayIndex(_ day: Int) -> Int { (layout.lead + day - 1) % 7 }
+
+    /// 오늘 이전(지난 날짜) 여부.
+    private func isPast(_ day: Int) -> Bool {
+        var comps = DateComponents(); comps.year = year; comps.month = month; comps.day = day
+        let cal = Calendar(identifier: .gregorian)
+        guard let d = cal.date(from: comps) else { return false }
+        return d < cal.startOfDay(for: Date())
+    }
+
+    /// 웹과 동일하게 모든 사이트 칩 표시(잘라내지 않음).
     private func chipSites(_ rec: [String: Int]) -> [String] {
-        Array(order.filter { rec[$0] != nil }.prefix(4))
+        order.filter { rec[$0] != nil }
     }
 
     /// 사이트별 잔여 칩. URL 있으면 클릭 시 예약 페이지로 이동.
     @ViewBuilder private func chip(site: String, remain: Int) -> some View {
-        let label = Text("\(site)\(remain)")
-            .font(.system(size: 7))
+        let label = Text("\(site) \(remain)")
+            .font(.system(size: 8))
             .foregroundStyle(chipColor(remain))
             .frame(maxWidth: .infinity, alignment: .leading)
         if let url = siteURL["\(month)-\(site)"] {
-            Link(destination: url) { label }.buttonStyle(.plain)
+            Link(destination: url) { label }
+                .buttonStyle(.plain)
+                .help("\(site) 예약 페이지 열기")
         } else {
             label
         }
     }
 
+    /// 셀 배경: 금·토 주말 강조(웹과 동일), 데이터 있는 날 옅은 배경.
+    private func cellBackground(_ day: Int, hasData: Bool) -> Color {
+        let w = weekdayIndex(day)
+        if w == 5 { return Color.blue.opacity(0.10) }    // 금요일 입실(금-토박)
+        if w == 6 { return Color.green.opacity(0.10) }   // 토요일 입실(토-일박)
+        return hasData ? Color.white.opacity(0.05) : .clear
+    }
+
     @ViewBuilder private func cell(_ day: Int) -> some View {
         let rec = monthGrid[day] ?? [:]
         let total = rec.values.map { max(0, $0) }.reduce(0, +)
+        let w = weekdayIndex(day)
         VStack(spacing: 1) {
             HStack(spacing: 2) {
-                Text("\(day)").font(.system(size: 8)).foregroundStyle(.secondary)
+                Text("\(day)").font(.system(size: 8, weight: .bold))
+                    .foregroundStyle(w == 0 ? .red : (w == 6 ? .blue : .secondary))
                 Spacer(minLength: 0)
                 if !rec.isEmpty {
                     Text("\(total)").font(.system(size: 9, weight: .bold))
@@ -249,9 +285,10 @@ struct MiniMonth: View {
                 chip(site: s, remain: max(0, rec[s] ?? 0))
             }
         }
-        .frame(height: 44, alignment: .top)
+        .frame(minHeight: rec.isEmpty ? 20 : 76, alignment: .top)
         .padding(2)
-        .background(rec.isEmpty ? Color.clear : Color.white.opacity(0.05),
+        .background(cellBackground(day, hasData: !rec.isEmpty),
                     in: RoundedRectangle(cornerRadius: 3))
+        .opacity(isPast(day) ? 0.35 : 1)
     }
 }
