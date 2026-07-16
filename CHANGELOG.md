@@ -1,0 +1,44 @@
+# 변경 이력
+
+이 프로젝트는 [Semantic Versioning](https://semver.org/lang/ko/)을 따릅니다.
+
+## [0.1.0] - 2026-07-16
+
+### 추가됨 (Added)
+- **CampingCore** 순수 로직 패키지
+  - 모델: `Campsite`, `Campground`, `MonthKey`, `AvailabilitySnapshot` 등
+  - Provider 추상화: `ReservationProvider`, `MockProvider`, `HybridProvider`
+  - 데이터 소스: `OpenAPIDataSource`(스텁), `CrawlerDataSource`(Playwright 브리지)
+  - `ReservationParser` — `data-site`/`data-available` 계약 기반 HTML 파싱
+  - 캐시: `AvailabilityCache` 프로토콜 + 파일/인메모리 구현 (App Group 공유)
+  - `ReservationRepository` — 네트워크→캐시→placeholder 폴백
+  - `AdaptivePoller` — 평상시 15분 / 오픈 10분 전 1분 / 오픈 중 10초
+  - `DateHelper` — 주말·공휴일·연휴 판정, 이번달/다음달 계산
+- **메뉴바 앱**(SwiftUI, MVVM): `MenuBarExtra`, 요약/캘린더/설정 화면
+- **WidgetKit 위젯**: 이번 달/다음 달 A~D 예약 가능 수
+- **NotificationManager**: 예약 가능/변경 로컬 알림 (코어 `AvailabilityDiff` 재사용)
+- **AvailabilityDiff**: 스냅샷 비교로 새로 열린 자리 감지 (알림 근거)
+- **SnapshotExporter**: CSV / JSON / Excel 호환 CSV(BOM) 내보내기
+- **Favorites**: 즐겨찾기 사이트 필터 (`snapshot.filtered(by:)`)
+- **HeatmapBuilder**: 주말 히트맵 셀 데이터 + 캘린더 뷰 히트맵
+- **적응형 자동 새로고침**: `ReservationViewModel.startAutoRefresh()`가 `AdaptivePoller` 주기 사용
+- **실 연동 스캐폴드**
+  - `SeoulOpenAPIDataSource`: 서울 OpenAPI 표준 URL 빌더 + 주입식 디코더
+  - `ProcessCrawlerDataSource`: 외부 크롤러(node)를 서브프로세스로 실행→파서 연결 (macOS)
+- **App Intents**: `RefreshAvailabilityIntent` + `CampingShortcuts` (Siri/Spotlight/단축어)
+- **UpdaterService**: Sparkle 자동 업데이트 seam(현재 no-op)
+- **Playwright 크롤러 스텁**(Node)
+- Xcode 프로젝트(.xcodeproj) + XcodeGen 정본(project.yml)
+- CI(GitHub Actions), SwiftLint/SwiftFormat 설정
+- 문서: README, 아키텍처/빌드/릴리스 가이드, 다이어그램
+
+### 검증 (Verified)
+- `swift run CampingCoreDemo` — 19개 스모크 테스트 전체 통과
+  (Process 크롤러 브리지는 `/bin/sh`로 실제 실행되어 파서까지 연결 검증)
+- 앱/위젯 소스 `swiftc -typecheck` 통과 (App Intents/Updater 포함, SDK+모듈 대비)
+- `project.pbxproj` 24자 ID(63개)/참조 무결성 + plist 문법 검증
+
+### 알려진 제한 (Known limitations)
+- 실제 서울 예약 사이트 연동 미완(소스 스펙 미확정) — 현재 Mock 폴백
+- 앱/위젯 `.app`/`.appex` 번들 빌드·실행은 정식 Xcode 필요
+- `.xcodeproj`는 Xcode에서 열림 검증 미수행(본 환경에 Xcode 없음) — 문제 시 `xcodegen generate`

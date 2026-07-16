@@ -1,0 +1,27 @@
+# SwiftLint 설정
+included:
+  - App
+  - Widget
+  - CampingCore/Sources
+excluded:
+  - CampingCore/.build
+  - crawler
+
+disabled_rules:
+  - trailing_whitespace
+  - todo
+
+line_length:
+  warning: 140
+  error: 200
+
+identifier_name:
+  min_length: 1        # a/b/c/d 사이트 식별자 허용
+  excluded: [id, x, y]
+
+type_name:
+  min_length: 3
+
+function_body_length:
+  warning: 60
+  error: 120

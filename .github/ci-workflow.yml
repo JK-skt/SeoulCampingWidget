@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  core-tests:
+    name: CampingCore 단위 테스트
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Swift 버전 확인
+        run: swift --version
+      - name: 코어 로직 스모크 테스트
+        working-directory: CampingCore
+        run: swift run CampingCoreDemo
+      - name: 코어 단위 테스트 (XCTest)
+        working-directory: CampingCore
+        run: swift test
+
+  app-build:
+    name: 앱/위젯 빌드
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Xcode 선택
+        run: sudo xcode-select -s /Applications/Xcode.app
+      - name: 앱 빌드 (서명 없이)
+        run: |
+          xcodebuild build \
+            -project SeoulCampingWidget.xcodeproj \
+            -scheme SeoulCampingWidget \
+            -destination 'platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO
+
+  lint:
+    name: SwiftLint
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: SwiftLint 설치
+        run: brew install swiftlint
+      - name: 린트 실행
+        run: swiftlint --strict || true   # 초기 단계: 경고만

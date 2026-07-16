@@ -1,0 +1,462 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		FACADE000000000000000201 /* SeoulCampingWidgetApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACADE000000000000000101 /* SeoulCampingWidgetApp.swift */; };
+		FACADE000000000000000202 /* AppShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACADE000000000000000102 /* AppShared.swift */; };
+		FACADE000000000000000203 /* ReservationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACADE000000000000000103 /* ReservationViewModel.swift */; };
+		FACADE000000000000000204 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACADE000000000000000104 /* MenuBarView.swift */; };
+		FACADE000000000000000205 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACADE000000000000000105 /* ContentView.swift */; };
+		FACADE000000000000000206 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACADE000000000000000106 /* CalendarView.swift */; };
+		FACADE000000000000000207 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACADE000000000000000107 /* SettingsView.swift */; };
+		FACADE000000000000000208 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACADE000000000000000108 /* NotificationManager.swift */; };
+		FACADE000000000000000209 /* CampingAppIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACADE00000000000000010B /* CampingAppIntents.swift */; };
+		FACADE00000000000000020A /* UpdaterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACADE00000000000000010C /* UpdaterService.swift */; };
+		FACADE000000000000000401 /* CampingWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACADE000000000000000301 /* CampingWidgetBundle.swift */; };
+		FACADE000000000000000402 /* CampingProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACADE000000000000000302 /* CampingProvider.swift */; };
+		FACADE000000000000000403 /* CampingWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACADE000000000000000303 /* CampingWidget.swift */; };
+		FACADE000000000000000604 /* CampingCore in Frameworks */ = {isa = PBXBuildFile; productRef = FACADE000000000000000602 /* CampingCore */; };
+		FACADE000000000000000605 /* CampingCore in Frameworks */ = {isa = PBXBuildFile; productRef = FACADE000000000000000603 /* CampingCore */; };
+		FACADE000000000000000A03 /* CampingWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = FACADE000000000000000502 /* CampingWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		FACADE000000000000000A02 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FACADE000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FACADE000000000000000011;
+			remoteInfo = CampingWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		FACADE000000000000000704 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				FACADE000000000000000A03 /* CampingWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		FACADE000000000000000101 /* SeoulCampingWidgetApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeoulCampingWidgetApp.swift; sourceTree = SOURCE_ROOT; };
+		FACADE000000000000000102 /* AppShared.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppShared.swift; path = App/Shared/AppShared.swift; sourceTree = SOURCE_ROOT; };
+		FACADE000000000000000103 /* ReservationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ReservationViewModel.swift; path = App/ViewModels/ReservationViewModel.swift; sourceTree = SOURCE_ROOT; };
+		FACADE000000000000000104 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MenuBarView.swift; path = App/Views/MenuBarView.swift; sourceTree = SOURCE_ROOT; };
+		FACADE000000000000000105 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ContentView.swift; path = App/Views/ContentView.swift; sourceTree = SOURCE_ROOT; };
+		FACADE000000000000000106 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CalendarView.swift; path = App/Views/CalendarView.swift; sourceTree = SOURCE_ROOT; };
+		FACADE000000000000000107 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsView.swift; path = App/Views/SettingsView.swift; sourceTree = SOURCE_ROOT; };
+		FACADE000000000000000108 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotificationManager.swift; path = App/Notifications/NotificationManager.swift; sourceTree = SOURCE_ROOT; };
+		FACADE000000000000000109 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = App/Info.plist; sourceTree = SOURCE_ROOT; };
+		FACADE00000000000000010A /* SeoulCampingWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = SeoulCampingWidget.entitlements; path = App/SeoulCampingWidget.entitlements; sourceTree = SOURCE_ROOT; };
+		FACADE00000000000000010B /* CampingAppIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CampingAppIntents.swift; path = App/Intents/CampingAppIntents.swift; sourceTree = SOURCE_ROOT; };
+		FACADE00000000000000010C /* UpdaterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UpdaterService.swift; path = App/Update/UpdaterService.swift; sourceTree = SOURCE_ROOT; };
+		FACADE000000000000000301 /* CampingWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CampingWidgetBundle.swift; path = Widget/CampingWidgetBundle.swift; sourceTree = SOURCE_ROOT; };
+		FACADE000000000000000302 /* CampingProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CampingProvider.swift; path = Widget/CampingProvider.swift; sourceTree = SOURCE_ROOT; };
+		FACADE000000000000000303 /* CampingWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CampingWidget.swift; path = Widget/CampingWidget.swift; sourceTree = SOURCE_ROOT; };
+		FACADE000000000000000304 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = Widget/Info.plist; sourceTree = SOURCE_ROOT; };
+		FACADE000000000000000305 /* CampingWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = CampingWidgetExtension.entitlements; path = Widget/CampingWidgetExtension.entitlements; sourceTree = SOURCE_ROOT; };
+		FACADE000000000000000501 /* SeoulCampingWidget.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SeoulCampingWidget.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FACADE000000000000000502 /* CampingWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = CampingWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		FACADE000000000000000702 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FACADE000000000000000604 /* CampingCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FACADE000000000000000712 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FACADE000000000000000605 /* CampingCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		FACADE000000000000000002 /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				FACADE000000000000000004 /* App */,
+				FACADE000000000000000005 /* Widget */,
+				FACADE000000000000000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		FACADE000000000000000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FACADE000000000000000501 /* SeoulCampingWidget.app */,
+				FACADE000000000000000502 /* CampingWidgetExtension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		FACADE000000000000000004 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				FACADE000000000000000101 /* SeoulCampingWidgetApp.swift */,
+				FACADE000000000000000102 /* AppShared.swift */,
+				FACADE000000000000000103 /* ReservationViewModel.swift */,
+				FACADE000000000000000104 /* MenuBarView.swift */,
+				FACADE000000000000000105 /* ContentView.swift */,
+				FACADE000000000000000106 /* CalendarView.swift */,
+				FACADE000000000000000107 /* SettingsView.swift */,
+				FACADE000000000000000108 /* NotificationManager.swift */,
+				FACADE00000000000000010B /* CampingAppIntents.swift */,
+				FACADE00000000000000010C /* UpdaterService.swift */,
+				FACADE000000000000000109 /* Info.plist */,
+				FACADE00000000000000010A /* SeoulCampingWidget.entitlements */,
+			);
+			name = App;
+			sourceTree = "<group>";
+		};
+		FACADE000000000000000005 /* Widget */ = {
+			isa = PBXGroup;
+			children = (
+				FACADE000000000000000301 /* CampingWidgetBundle.swift */,
+				FACADE000000000000000302 /* CampingProvider.swift */,
+				FACADE000000000000000303 /* CampingWidget.swift */,
+				FACADE000000000000000304 /* Info.plist */,
+				FACADE000000000000000305 /* CampingWidgetExtension.entitlements */,
+			);
+			name = Widget;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		FACADE000000000000000010 /* SeoulCampingWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FACADE000000000000000802 /* Build configuration list for PBXNativeTarget "SeoulCampingWidget" */;
+			buildPhases = (
+				FACADE000000000000000701 /* Sources */,
+				FACADE000000000000000702 /* Frameworks */,
+				FACADE000000000000000703 /* Resources */,
+				FACADE000000000000000704 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				FACADE000000000000000A01 /* PBXTargetDependency */,
+			);
+			name = SeoulCampingWidget;
+			packageProductDependencies = (
+				FACADE000000000000000602 /* CampingCore */,
+			);
+			productName = SeoulCampingWidget;
+			productReference = FACADE000000000000000501 /* SeoulCampingWidget.app */;
+			productType = "com.apple.product-type.application";
+		};
+		FACADE000000000000000011 /* CampingWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FACADE000000000000000803 /* Build configuration list for PBXNativeTarget "CampingWidgetExtension" */;
+			buildPhases = (
+				FACADE000000000000000711 /* Sources */,
+				FACADE000000000000000712 /* Frameworks */,
+				FACADE000000000000000713 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CampingWidgetExtension;
+			packageProductDependencies = (
+				FACADE000000000000000603 /* CampingCore */,
+			);
+			productName = CampingWidgetExtension;
+			productReference = FACADE000000000000000502 /* CampingWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		FACADE000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					FACADE000000000000000010 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					FACADE000000000000000011 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = FACADE000000000000000801 /* Build configuration list for PBXProject "SeoulCampingWidget" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = ko;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				ko,
+				Base,
+			);
+			mainGroup = FACADE000000000000000002 /* Main */;
+			packageReferences = (
+				FACADE000000000000000601 /* XCLocalSwiftPackageReference "CampingCore" */,
+			);
+			productRefGroup = FACADE000000000000000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				FACADE000000000000000010 /* SeoulCampingWidget */,
+				FACADE000000000000000011 /* CampingWidgetExtension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		FACADE000000000000000703 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FACADE000000000000000713 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		FACADE000000000000000701 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FACADE000000000000000201 /* SeoulCampingWidgetApp.swift in Sources */,
+				FACADE000000000000000202 /* AppShared.swift in Sources */,
+				FACADE000000000000000203 /* ReservationViewModel.swift in Sources */,
+				FACADE000000000000000204 /* MenuBarView.swift in Sources */,
+				FACADE000000000000000205 /* ContentView.swift in Sources */,
+				FACADE000000000000000206 /* CalendarView.swift in Sources */,
+				FACADE000000000000000207 /* SettingsView.swift in Sources */,
+				FACADE000000000000000208 /* NotificationManager.swift in Sources */,
+				FACADE000000000000000209 /* CampingAppIntents.swift in Sources */,
+				FACADE00000000000000020A /* UpdaterService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FACADE000000000000000711 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FACADE000000000000000401 /* CampingWidgetBundle.swift in Sources */,
+				FACADE000000000000000402 /* CampingProvider.swift in Sources */,
+				FACADE000000000000000403 /* CampingWidget.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		FACADE000000000000000A01 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FACADE000000000000000011 /* CampingWidgetExtension */;
+			targetProxy = FACADE000000000000000A02 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		FACADE000000000000000901 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		FACADE000000000000000902 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		FACADE000000000000000903 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = App/SeoulCampingWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = App/Info.plist;
+				INFOPLIST_KEY_LSUIElement = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.seoulcamping.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		FACADE000000000000000904 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = App/SeoulCampingWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = App/Info.plist;
+				INFOPLIST_KEY_LSUIElement = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.seoulcamping.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		FACADE000000000000000905 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Widget/CampingWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Widget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../../../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.seoulcamping.widget.CampingWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		FACADE000000000000000906 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Widget/CampingWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Widget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../../../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.seoulcamping.widget.CampingWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		FACADE000000000000000801 /* Build configuration list for PBXProject "SeoulCampingWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FACADE000000000000000901 /* Debug */,
+				FACADE000000000000000902 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FACADE000000000000000802 /* Build configuration list for PBXNativeTarget "SeoulCampingWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FACADE000000000000000903 /* Debug */,
+				FACADE000000000000000904 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FACADE000000000000000803 /* Build configuration list for PBXNativeTarget "CampingWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FACADE000000000000000905 /* Debug */,
+				FACADE000000000000000906 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		FACADE000000000000000601 /* XCLocalSwiftPackageReference "CampingCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = CampingCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		FACADE000000000000000602 /* CampingCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CampingCore;
+		};
+		FACADE000000000000000603 /* CampingCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CampingCore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = FACADE000000000000000001 /* Project object */;
+}

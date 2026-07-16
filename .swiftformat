@@ -1,0 +1,9 @@
+# SwiftFormat 설정
+--swiftversion 5.9
+--indent 4
+--maxwidth 120
+--wraparguments before-first
+--wrapcollections before-first
+--commas inline
+--trimwhitespace always
+--exclude CampingCore/.build,crawler

@@ -1,0 +1,13 @@
+{
+  "name": "seoul-camping-crawler",
+  "version": "0.1.0",
+  "description": "난지 캠핑장 예약 현황 Playwright 크롤러 (스텁)",
+  "type": "module",
+  "scripts": {
+    "crawl": "node crawl.mjs",
+    "postinstall": "playwright install chromium"
+  },
+  "dependencies": {
+    "playwright": "^1.48.0"
+  }
+}

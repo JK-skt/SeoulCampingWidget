@@ -1,0 +1,76 @@
+# XcodeGen 프로젝트 명세 (정본).
+#
+# 커밋된 SeoulCampingWidget.xcodeproj가 Xcode에서 바로 열립니다.
+# 프로젝트 구조를 바꿔야 하거나 .xcodeproj가 손상되면 이 파일을 정본으로
+# 다음 명령으로 재생성하세요:
+#
+#   brew install xcodegen   # 최초 1회
+#   xcodegen generate
+#
+name: SeoulCampingWidget
+options:
+  bundleIdPrefix: com.seoulcamping
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+
+packages:
+  CampingCore:
+    path: CampingCore
+
+targets:
+  SeoulCampingWidget:
+    type: application
+    platform: macOS
+    sources:
+      - path: App
+    info:
+      path: App/Info.plist
+      properties:
+        LSUIElement: true
+        CFBundleDisplayName: 서울 캠핑 위젯
+    entitlements:
+      path: App/SeoulCampingWidget.entitlements
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.seoulcamping.widget
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        ENABLE_HARDENED_RUNTIME: YES
+        SWIFT_VERSION: "5.0"
+    dependencies:
+      - package: CampingCore
+        product: CampingCore
+      - target: CampingWidgetExtension
+        embed: true
+
+  CampingWidgetExtension:
+    type: app-extension
+    platform: macOS
+    sources:
+      - path: Widget
+    info:
+      path: Widget/Info.plist
+      properties:
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: Widget/CampingWidgetExtension.entitlements
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.seoulcamping.widget.CampingWidget
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SKIP_INSTALL: YES
+        SWIFT_VERSION: "5.0"
+    dependencies:
+      - package: CampingCore
+        product: CampingCore
+
+schemes:
+  SeoulCampingWidget:
+    build:
+      targets:
+        SeoulCampingWidget: all
+    run:
+      config: Debug
