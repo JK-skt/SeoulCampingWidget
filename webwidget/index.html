@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>난지캠핑장 · 서울 캠핑 위젯</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; font-family: -apple-system, "Apple SD Gothic Neo", "SF Pro", sans-serif; }
+  body { margin:0; min-height:100vh; background:linear-gradient(135deg,#1c1c1e,#25233a 55%,#0f5f49);
+         color:#f2f2f7; display:flex; flex-direction:column; align-items:center; gap:22px; padding:32px 16px; }
+  h1 { font-size:18px; font-weight:700; margin:0; }
+  .live { color:#34c759; font-size:12px; }
+  .sub { font-size:12px; opacity:.5; margin-top:-14px; }
+  .tag { font-size:11px; opacity:.55; margin:6px 0 -6px; letter-spacing:.4px; }
+  /* macOS 메뉴바 재현 */
+  .menubar { width:min(560px,94vw); height:28px; background:rgba(255,255,255,.10); backdrop-filter:blur(24px);
+             border-radius:8px; display:flex; align-items:center; justify-content:flex-end; gap:16px; padding:0 12px;
+             font-size:13px; border:1px solid rgba(255,255,255,.08); }
+  .mbitem { display:flex; align-items:center; gap:5px; font-variant-numeric:tabular-nums; }
+  .mbitem.hot { color:#fff; }
+  .card { width:min(340px,94vw); background:rgba(40,40,46,.92); border-radius:20px; padding:18px;
+          border:1px solid rgba(255,255,255,.08); box-shadow:0 16px 50px rgba(0,0,0,.55); }
+  .hdr { display:flex; align-items:center; gap:8px; font-weight:700; }
+  .dot { width:9px; height:9px; border-radius:50%; }
+  .status { display:flex; align-items:center; gap:8px; margin:12px 0; font-size:15px; font-weight:700; }
+  .zones { display:flex; gap:8px; margin-bottom:6px; }
+  .z { flex:1; text-align:center; background:rgba(255,255,255,.06); border-radius:10px; padding:8px 0; }
+  .z .l { font-size:11px; opacity:.6; } .z .n { font-size:20px; font-weight:800; }
+  .svc { display:flex; align-items:center; gap:8px; padding:8px 0; border-top:1px solid rgba(255,255,255,.06); font-size:12.5px; }
+  .badge { font-size:10px; font-weight:800; padding:2px 8px; border-radius:20px; }
+  .badge.ok { background:rgba(52,199,89,.2); color:#34c759; } .badge.no { background:rgba(142,142,147,.2); color:#8e8e93; }
+  .zl { width:66px; opacity:.85; } .st { opacity:.6; flex:1; }
+  .foot { font-size:11px; opacity:.45; margin-top:10px; }
+  a { color:#0a84ff; text-decoration:none; }
+  .note { width:min(560px,94vw); font-size:11.5px; opacity:.55; text-align:center; line-height:1.6; }
+</style></head>
+<body data-app="SeoulCamping">
+  <h1>난지캠핑장 <span class="live">● LIVE</span></h1>
+  <div class="sub">yeyak.seoul.go.kr 실시간 · <span id="ts"></span></div>
+
+  <div class="tag">① macOS 메뉴바 앱 (금·토 예약 가능 시 개수 표시)</div>
+  <div class="menubar">
+    <span class="mbitem" style="opacity:.55">🔋 100%</span>
+    <span class="mbitem" style="opacity:.55">🔍</span>
+    <span class="mbitem hot" id="mb">⛺ 금·토 —</span>
+  </div>
+
+  <div class="tag">② 웹 위젯</div>
+  <div class="card">
+    <div class="hdr"><span>⛺</span><span>난지 캠핑장</span></div>
+    <div class="status"><span class="dot" id="dot"></span><span id="statusText">…</span></div>
+    <div class="zones" id="zones"></div>
+    <div id="svclist"></div>
+    <div class="foot" id="foot"></div>
+  </div>
+
+  <div class="note">
+    금·토(금요일 입실) / 토·일(토요일 입실) 주말 캠핑 대상 · 일반캠핑존 A/B/C/D + 프리/바비큐/캠프파이어존<br>
+    ※ 일자별 잔여 좌석은 yeyak 로그인 세션 필요 · 데이터는 빌드시 주입(정적) 또는 크롤러로 갱신
+  </div>
+
+<script id="data" type="application/json">__DATA__</script>
+<script>
+  const d = JSON.parse(document.getElementById("data").textContent);
+  const open = d.services.filter(s => /접수중/.test(s.status));
+  document.getElementById("ts").textContent = d.generatedAt || "";
+  document.getElementById("mb").textContent = open.length ? `⛺ 금·토 ${open.length}` : "⛺";
+  const dot = document.getElementById("dot");
+  dot.style.background = open.length ? "#34c759" : "#8e8e93";
+  document.getElementById("statusText").textContent =
+    open.length ? `금·토 예약 가능 ${open.length}곳` : "현재 금·토 예약 가능 없음";
+  // zones
+  const zc = z => open.filter(s => s.zone === z).length;
+  document.getElementById("zones").innerHTML = ["A","B","C","D"].map(z =>
+    `<div class="z"><div class="l">${z}</div><div class="n" style="color:${zc(z)?'#34c759':'#8e8e93'}">${zc(z)}</div></div>`).join("");
+  // service list
+  document.getElementById("svclist").innerHTML = d.services.map(s => {
+    const ok = /접수중/.test(s.status);
+    const zl = s.zone ? `일반 ${s.zone}형` : (/프리/.test(s.title)?"프리":/바비큐/.test(s.title)?"바비큐":/캠프파이어/.test(s.title)?"캠프파이어":"기타");
+    const t = s.title.replace("26년 한강공원 난지캠핑장","").trim();
+    return `<div class="svc"><span class="badge ${ok?'ok':'no'}">${ok?'접수중':s.status}</span><span class="zl">${zl}</span><span class="st">${t}</span></div>`;
+  }).join("");
+  document.getElementById("foot").innerHTML =
+    `${d.services.length}개 존 · <a href="https://yeyak.seoul.go.kr">예약 페이지 열기</a>`;
+</script>
+</body></html>

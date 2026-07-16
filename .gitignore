@@ -22,3 +22,8 @@ crawler/auth.json
 
 # 기타
 *.log
+
+# macOS 앱/위젯 빌드 산출물
+macapp/SeoulCamping.app/
+macapp/AppIcon.iconset/
+webwidget/dist/

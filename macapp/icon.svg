@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3b2f6b"/>
+      <stop offset="0.5" stop-color="#264a8a"/>
+      <stop offset="1" stop-color="#0f7a5f"/>
+    </linearGradient>
+    <radialGradient id="moon" cx="0.5" cy="0.4" r="0.6">
+      <stop offset="0" stop-color="#fff7d6"/>
+      <stop offset="1" stop-color="#ffe08a"/>
+    </radialGradient>
+    <linearGradient id="tent" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#d7f5ea"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffd166" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#ffd166" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- 배경 라운드 사각형 -->
+  <rect x="0" y="0" width="1024" height="1024" rx="224" fill="url(#sky)"/>
+
+  <!-- 달 -->
+  <circle cx="770" cy="250" r="92" fill="url(#moon)"/>
+  <circle cx="740" cy="228" r="86" fill="url(#sky)" opacity="0.9"/>
+
+  <!-- 별 -->
+  <g fill="#ffffff">
+    <circle cx="230" cy="210" r="7"/>
+    <circle cx="330" cy="150" r="5"/>
+    <circle cx="470" cy="230" r="6"/>
+    <circle cx="180" cy="330" r="4"/>
+    <circle cx="600" cy="150" r="5"/>
+    <circle cx="860" cy="420" r="5"/>
+  </g>
+
+  <!-- 소나무 실루엣 -->
+  <g fill="#0b4a3a" opacity="0.55">
+    <polygon points="150,720 220,560 290,720"/>
+    <polygon points="150,690 220,540 290,690"/>
+    <polygon points="820,730 890,580 960,730"/>
+    <polygon points="820,700 890,560 960,700"/>
+  </g>
+
+  <!-- 지면 -->
+  <rect x="0" y="720" width="1024" height="304" fill="#0b5f49"/>
+  <rect x="0" y="720" width="1024" height="30" fill="#0e6e55"/>
+
+  <!-- 텐트 입구 불빛 -->
+  <ellipse cx="512" cy="640" rx="150" ry="130" fill="url(#glow)"/>
+
+  <!-- 텐트 -->
+  <polygon points="512,300 760,720 264,720" fill="url(#tent)"/>
+  <polygon points="512,300 560,300 800,720 760,720" fill="#bfeede"/>
+  <!-- 텐트 입구 -->
+  <polygon points="512,360 600,720 424,720" fill="#1c2a4a"/>
+  <polygon points="512,360 512,720 470,720" fill="#12406a"/>
+  <!-- 텐트 지지선 -->
+  <line x1="512" y1="300" x2="512" y2="250" stroke="#ffffff" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="512" cy="244" r="16" fill="#ffd166"/>
+</svg>
