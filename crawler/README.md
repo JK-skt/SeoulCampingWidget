@@ -7,8 +7,19 @@
 🟢 **동작** — Playwright로 난지캠핑장을 실크롤해 서비스 상태(접수중/마감)를
 구역별로 집계, Swift 파서 계약 HTML을 출력한다. `node crawl.mjs`로 라이브 실행됨.
 
-🟡 남은 것: **일자별 잔여 좌석 수**는 예약 신청 폼(`insertFormReserve.do`)이
-**로그인**을 요구한다(실측). 계정 세션 쿠키(storageState)를 주입하면 확장 가능.
+🟢 **일자별 예약 가능일**: 로그인 세션(`auth.json`)을 주입하면 예약폼 달력에서
+`<td class="able"><a data-ymd="YYYYMMDD">` = 예약 가능일을 파싱한다.
+
+### 로그인 세션 준비 (일자별 조회용, 1회)
+
+```bash
+node login.mjs     # (로컬 PC, 화면 필요) 브라우저 로그인 → Enter → auth.json 저장
+node crawl.mjs --json   # 이제 서비스별 availableDates(예약가능일)까지 포함
+```
+
+> ⚠️ `auth.json`은 로그인 세션(쿠키)이라 **민감정보**다. `.gitignore`로 제외되며
+> 절대 커밋하지 않는다. 원격/headless 환경에선 로그인 상호작용이 불가하므로
+> 로컬에서 생성해 크롤 환경으로 옮긴다.
 
 ## 환경 준비 (node 없을 때)
 
