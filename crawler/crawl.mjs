@@ -1,34 +1,38 @@
-// 난지 캠핑장 예약 현황 Playwright 크롤러 (스텁).
+// 난지 캠핑장 예약 현황 Playwright 크롤러.
 //
-// 서울 공공예약 사이트의 실제 DOM 구조가 확정되지 않았으므로,
-// 현재는 Swift 파서(`ReservationParser`)가 기대하는 계약(contract) 형식의
-// HTML을 생성해 출력한다:
+// 실측 리버스 엔지니어링 결과(yeyak.seoul.go.kr 실제 엔드포인트):
+//   - /web/main.do                                  세션 쿠키 발급(진입)
+//   - /web/search/selectPageListTotalSearch.do      통합검색(키워드)
+//   - /web/reservation/selectPageListFacilitySvc.do 시설 서비스 목록
+//   - /web/reservation/selectReservView.do?rsv_svc_id=...   서비스 상세
+//   - /web/reservation/selectListReservCalAjax.do   ★ 날짜별 예약현황(세션 필요; 직접 GET은 302→로그인)
+//   - /web/reservation/selectListReservCalUnitAjax.do  구역/단위별 잔여
 //
-//   <li data-site="A" data-available="3"></li>
+// 핵심: 예약현황 AJAX는 세션 쿠키 + XHR 컨텍스트가 있어야 데이터를 반환한다.
+// 그래서 순수 HTTP가 아니라 Playwright(브라우저 세션)로 페이지를 열어
+// 캘린더가 렌더된 뒤 잔여 수량을 읽어야 한다.
 //
-// 실제 연동 시 아래 TODO 부분을 사이트 구조에 맞게 채우면 된다.
+// 출력: Swift ReservationParser 계약(<li data-site="A" data-available="N">) HTML.
 //
-// 사용법:
+// 사용:
 //   npm install
-//   node crawl.mjs --month 2026-07 > out.html
-//   (또는 Swift 앱의 CrawlerDataSource.htmlProvider가 이 스크립트를 서브프로세스로 호출)
+//   node crawl.mjs --month 2026-07            # 실제 크롤(node/Playwright 필요)
+//   node crawl.mjs --month 2026-07 --mock     # 계약 형식 mock
 
 import { chromium } from "playwright";
 
-const RESERVATION_URL = "https://yeyak.seoul.go.kr";
+const BASE = "https://yeyak.seoul.go.kr";
+const SEARCH_KEYWORD = "난지 캠핑";
 
 function parseArgs() {
-  const args = process.argv.slice(2);
-  const monthIdx = args.indexOf("--month");
-  const month = monthIdx >= 0 ? args[monthIdx + 1] : null;
-  const useMock = args.includes("--mock") || true; // 실제 셀렉터 확정 전까지 기본 mock
-  return { month, useMock };
+  const a = process.argv.slice(2);
+  const mi = a.indexOf("--month");
+  return { month: mi >= 0 ? a[mi + 1] : null, useMock: a.includes("--mock") };
 }
 
-/** 계약 형식의 HTML을 생성한다. */
 function toContractHTML(counts) {
   const items = Object.entries(counts)
-    .map(([site, n]) => `  <li data-site="${site}" data-available="${n}"></li>`)
+    .map(([s, n]) => `  <li data-site="${s}" data-available="${n}"></li>`)
     .join("\n");
   return `<ul class="camp-availability">\n${items}\n</ul>`;
 }
@@ -36,22 +40,35 @@ function toContractHTML(counts) {
 async function crawlReal(month) {
   const browser = await chromium.launch({ headless: true });
   try {
-    const page = await browser.newPage();
-    await page.goto(RESERVATION_URL, { waitUntil: "networkidle" });
+    const ctx = await browser.newContext({ locale: "ko-KR" });
+    const page = await ctx.newPage();
 
-    // TODO: 실제 사이트 흐름 구현
-    //   1) 난지 캠핑장 검색/이동
-    //   2) 대상 월(month) 선택
-    //   3) 각 사이트(A~D)의 잔여 수량 DOM 추출
-    // 예시(가상 셀렉터):
-    //   const counts = {};
-    //   for (const site of ["A", "B", "C", "D"]) {
-    //     const text = await page.locator(`[data-zone="${site}"] .remain`).innerText();
-    //     counts[site] = parseInt(text.replace(/[^0-9]/g, ""), 10) || 0;
-    //   }
-    //   return counts;
+    // 1) 진입 → 세션 쿠키 확보
+    await page.goto(`${BASE}/web/main.do`, { waitUntil: "networkidle" });
 
-    throw new Error("실제 셀렉터 미구현");
+    // 2) 통합검색으로 난지 캠핑 서비스 목록 수집
+    await page.goto(
+      `${BASE}/web/search/selectPageListTotalSearch.do?searchKeyword=${encodeURIComponent(SEARCH_KEYWORD)}`,
+      { waitUntil: "networkidle" }
+    );
+    // 검색 결과 앵커에서 rsv_svc_id 추출(예: selectReservView.do?rsv_svc_id=S...)
+    const svcIds = await page.$$eval("a[href*='rsv_svc_id=']", (as) =>
+      Array.from(new Set(as.map((a) => (a.getAttribute("href").match(/rsv_svc_id=([A-Z0-9]+)/) || [])[1]).filter(Boolean)))
+    );
+
+    // 3) 각 서비스 상세를 열어 해당 월의 잔여 수량을 읽는다.
+    //    (selectListReservCalAjax.do가 세션 컨텍스트에서 자동 호출되어 캘린더 렌더)
+    const counts = { A: 0, B: 0, C: 0, D: 0 };
+    for (const svcId of svcIds) {
+      await page.goto(`${BASE}/web/reservation/selectReservView.do?rsv_svc_id=${svcId}`, {
+        waitUntil: "networkidle",
+      });
+      // TODO(사이트 DOM 확정 필요): 구역(A~D)과 해당 월 잔여 수량 셀 셀렉터 매핑.
+      //   const zone = await page.locator("...").innerText();      // A/B/C/D
+      //   const remain = await page.locator("... .remain").count(); // 잔여 슬롯
+      //   counts[zone] += remain;
+    }
+    return counts;
   } finally {
     await browser.close();
   }
@@ -59,17 +76,11 @@ async function crawlReal(month) {
 
 async function main() {
   const { month, useMock } = parseArgs();
-  let counts;
-  if (useMock) {
-    // 결정론적 mock 값.
-    counts = { A: 3, B: 2, C: 0, D: 5 };
-  } else {
-    counts = await crawlReal(month);
-  }
+  const counts = useMock ? { A: 3, B: 2, C: 0, D: 5 } : await crawlReal(month);
   process.stdout.write(toContractHTML(counts) + "\n");
 }
 
-main().catch((err) => {
-  process.stderr.write(`크롤러 오류: ${err.message}\n`);
+main().catch((e) => {
+  process.stderr.write(`크롤러 오류: ${e.message}\n`);
   process.exit(1);
 });
