@@ -74,8 +74,11 @@ function parseDays(cal) {
 
 async function main() {
   const checkOnly = process.argv.includes("--check");
-  const browser = await chromium.launch();
-  const ctx = await browser.newContext({ locale: "ko-KR", userAgent: UA, viewport: { width: 1366, height: 900 } });
+  const browser = await chromium.launch({ headless: !process.argv.includes("--headed") });
+  const ctx = await browser.newContext({
+    locale: "ko-KR", userAgent: UA, viewport: { width: 1366, height: 900 },
+    extraHTTPHeaders: { "Accept-Language": "ko-KR,ko;q=0.9" },
+  });
   const page = await ctx.newPage();
 
   console.error("① 진입(main.do)…");
