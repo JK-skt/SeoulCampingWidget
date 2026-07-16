@@ -50,7 +50,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		FACADE000000000000000101 /* SeoulCampingWidgetApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeoulCampingWidgetApp.swift; sourceTree = SOURCE_ROOT; };
+		FACADE000000000000000101 /* SeoulCampingWidgetApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SeoulCampingWidgetApp.swift; path = App/SeoulCampingWidgetApp.swift; sourceTree = SOURCE_ROOT; };
 		FACADE000000000000000102 /* AppShared.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppShared.swift; path = App/Shared/AppShared.swift; sourceTree = SOURCE_ROOT; };
 		FACADE000000000000000103 /* ReservationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ReservationViewModel.swift; path = App/ViewModels/ReservationViewModel.swift; sourceTree = SOURCE_ROOT; };
 		FACADE000000000000000104 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MenuBarView.swift; path = App/Views/MenuBarView.swift; sourceTree = SOURCE_ROOT; };
