@@ -209,6 +209,7 @@ struct PopoverView: View {
         }
         .padding(14)
         .frame(width: 340)
+        .preferredColorScheme(.dark)
     }
 }
 

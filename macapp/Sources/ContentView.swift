@@ -32,7 +32,9 @@ struct ContentView: View {
             }
         }
         .frame(minWidth: 820, minHeight: 560)
-        .background(Color.bgWindow)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(red: 0.137, green: 0.137, blue: 0.149).ignoresSafeArea())  // #232326 다크 창 배경
+        .preferredColorScheme(.dark)                          // 다크 네이티브 디자인
     }
 
     // MARK: 툴바
@@ -55,10 +57,13 @@ struct ContentView: View {
                 Text("끔").tag(0.0); Text("30초").tag(30.0); Text("1분").tag(60.0)
                 Text("5분").tag(300.0); Text("15분").tag(900.0)
             }.frame(width: 130).controlSize(.small)
-            Button {
-                NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
-                NSApp.sendAction(Selector(("showPreferencesWindow:")), to: nil, from: nil)
-            } label: { Image(systemName: "gearshape") }.help("설정")
+            if #available(macOS 14.0, *) {
+                SettingsLink { Image(systemName: "gearshape") }.help("설정")
+            } else {
+                Button {
+                    NSApp.sendAction(Selector(("showPreferencesWindow:")), to: nil, from: nil)
+                } label: { Image(systemName: "gearshape") }.help("설정")
+            }
         }
         .padding(.horizontal, 16).padding(.vertical, 10)
     }
