@@ -30,7 +30,17 @@ swift test                  # XCTest (정식 Xcode/CI 필요)
 > (자세한 내용은 [docs/BUILD.md](docs/BUILD.md)). 다만 `.app`/`.appex` 번들
 > 빌드와 실행에는 정식 Xcode가 필요합니다.
 
-### 3) 서울 공공예약 실 API 라이브 호출
+### 3) 난지캠핑장 라이브 조회 (인증키 불필요)
+
+```bash
+cd CampingCore
+swift run NanjiLive     # yeyak 캠핑장 목록에서 난지캠핑장 서비스·상태 라이브 조회
+```
+
+실측으로 확인: 난지캠핑장 6개 존(프리/일반 A·B·D형/바비큐/캠프파이어)의 예약상태를
+`svc_id`와 함께 순수 HTTP로 조회합니다. 앱은 이 소스를 **기본 primary**로 사용합니다.
+
+### 4) 서울 공공예약 실 API 라이브 호출 (인증키)
 
 ```bash
 cd CampingCore

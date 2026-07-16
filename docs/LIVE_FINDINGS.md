@@ -2,7 +2,20 @@
 
 발급받은 서울 열린데이터 인증키로 공개 API 전체를 실조회하여 확인한 사실.
 
-## 핵심 결론
+## ★ 돌파: 난지캠핑장 실데이터를 키·Playwright 없이 조회
+공개 API엔 없지만, **yeyak 캠핑장 카테고리 목록**의 정적 HTML에 난지캠핑장
+서비스의 `svc_id`·제목·예약상태가 포함되어 순수 HTTP(GET)로 조회된다.
+
+- 엔드포인트: `/web/search/selectPageListDetailSearchImg.do?code=T500&dCode=T502` (T502=캠핑장)
+- 라이브 결과(2026-07-16): 난지캠핑장 **6개 존 전부 접수중**
+  (프리캠핑존 / 일반캠핑존 A·B·D형 / 바비큐존 / 캠프파이어존)
+- Swift 실구현: [`YeyakCampingClient`](../CampingCore/Sources/CampingCore/Services/YeyakCampingClient.swift)
+  + [`YeyakCampingDataSource`](../CampingCore/Sources/CampingCore/Services/YeyakCampingClient.swift),
+  실행: `swift run NanjiLive` → HybridProvider 기본 primary로 연결(키 불필요)
+- 한계: 목록의 **서비스 단위 상태(접수중/마감)**까지는 순수 HTTP로 가능하나,
+  일자별 **잔여 좌석 수**는 상세/캘린더 AJAX(세션)가 필요.
+
+## (참고) 공개 OpenAPI 쪽 결론
 **난지 오토캠핑장 예약은 서울 공개 API(ListPublicReservation*)에 존재하지 않는다.**
 
 - 전 카테고리 전수 조회: Sport 599 / Culture 977 / Education 377 = 총 1,953건

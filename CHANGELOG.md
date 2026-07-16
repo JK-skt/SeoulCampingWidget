@@ -22,6 +22,12 @@
 - **Favorites**: 즐겨찾기 사이트 필터 (`snapshot.filtered(by:)`)
 - **HeatmapBuilder**: 주말 히트맵 셀 데이터 + 캘린더 뷰 히트맵
 - **적응형 자동 새로고침**: `ReservationViewModel.startAutoRefresh()`가 `AdaptivePoller` 주기 사용
+- **★ 난지캠핑장 실연동** (yeyak, 인증키·Playwright 불필요)
+  - `YeyakCampingClient`: 캠핑장 카테고리 목록(정적 HTML)에서 svc_id·제목·상태 파싱
+  - `YeyakCampingDataSource`: 월·구역별 접수중 캠핑존 집계(순수 매핑 테스트)
+  - `NanjiLive` 실행 파일: `swift run NanjiLive`로 난지캠핑장 라이브 조회
+  - HybridProvider 기본 primary를 yeyak 난지캠핑장으로 연결
+  - 라이브 검증: 난지캠핑장 6개 존(프리/일반 A·B·D형/바비큐/캠프파이어) 전부 접수중
 - **서울 공공예약 실 API 연동** (라이브 호출 검증)
   - `ReservationService`: 실 응답 스키마(SVCNM/SVCSTATNM/RCPTBGNDT 등) 모델
   - `SeoulReservationClient`: 실 엔드포인트 호출·페이징(실키)·JSON 디코딩, `SEOUL_API_KEY` 환경변수 지원

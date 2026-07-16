@@ -101,6 +101,15 @@ func runSmokeTests() async -> Int {
     let mapped = SeoulReservationDataSource.siteCounts(from: svcs, month: months[0])
     check(mapped[.a] == 1 && (mapped[.b] ?? 0) == 0, "서울 실 API 스키마 매핑(접수중=집계, 마감=제외)")
 
+    // 11) yeyak 난지캠핑장 목록 파싱(오프라인 픽스처)
+    let yeyakHTML = #"""
+    <li><a href="#" onclick="fnDetailPage('S1','',''); return false;" title="8월 일반캠핑존 A형 26년 한강공원 난지캠핑장"><span class="bd_label status1">접수중</span></a></li>
+    <li><a href="#" onclick="fnDetailPage('S2','',''); return false;" title="8월 일반캠핑존 D형 26년 한강공원 난지캠핑장"><span class="bd_label status4">예약마감</span></a></li>
+    """#
+    let yeyakSvcs = YeyakCampingClient.parseServices(from: yeyakHTML)
+    check(yeyakSvcs.count == 2 && yeyakSvcs[0].isOpen && yeyakSvcs[0].inferredSite == .a,
+          "yeyak 난지캠핑장 목록 파싱(svc_id/상태/구역)")
+
     print("== 결과: \(failures == 0 ? "전체 통과 🎉" : "\(failures)건 실패") ==")
     return failures
 }

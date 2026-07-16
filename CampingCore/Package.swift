@@ -17,7 +17,10 @@ let package = Package(
         .executable(name: "CampingCoreDemo", targets: ["CampingCoreDemo"]),
         // 서울 공공예약 실 API를 라이브로 호출하는 실행 파일.
         // 사용법: `SEOUL_API_KEY=발급키 swift run CampingLive` (키 없으면 sample=5행)
-        .executable(name: "CampingLive", targets: ["CampingLive"])
+        .executable(name: "CampingLive", targets: ["CampingLive"]),
+        // yeyak 난지캠핑장을 직접(키 불필요) 라이브 조회하는 실행 파일.
+        // 사용법: `swift run NanjiLive`
+        .executable(name: "NanjiLive", targets: ["NanjiLive"])
     ],
     targets: [
         .target(
@@ -33,6 +36,11 @@ let package = Package(
             name: "CampingLive",
             dependencies: ["CampingCore"],
             path: "Sources/CampingLive"
+        ),
+        .executableTarget(
+            name: "NanjiLive",
+            dependencies: ["CampingCore"],
+            path: "Sources/NanjiLive"
         ),
         .testTarget(
             name: "CampingCoreTests",
