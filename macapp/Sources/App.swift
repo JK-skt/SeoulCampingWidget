@@ -32,6 +32,11 @@ final class CampViewModel: ObservableObject {
     /// 달력(사이트별 날짜 잔여). 라이브 미가용 시 번들 샘플.
     @Published var calendar: CalendarData = CalendarStore.loadBundled()
 
+    /// 자동 갱신 주기(초). 사용자가 팝오버에서 변경.
+    @Published var refreshInterval: Double = 900 {
+        didSet { restartTimer() }
+    }
+
     var grid: [String: [Int: [String: Int]]] { CalendarStore.grid(calendar) }
 
     /// "month-site" → 예약 URL (달력 칩 클릭 시 이동).
@@ -49,8 +54,14 @@ final class CampViewModel: ObservableObject {
         // 캐시 즉시 표시(재시작 시 재요청 최소화)
         if let cached = YeyakClient.loadCache() { services = cached }
         Task { await refresh() }
-        // 15분마다 자동 새로고침(저빈도 = anti-bot 미유발)
-        timer = Timer.scheduledTimer(withTimeInterval: 900, repeats: true) { [weak self] _ in
+        restartTimer()
+    }
+
+    /// 현재 주기로 타이머 재설정.
+    func restartTimer() {
+        timer?.invalidate()
+        guard refreshInterval > 0 else { return }   // 0 = 자동 갱신 끔
+        timer = Timer.scheduledTimer(withTimeInterval: refreshInterval, repeats: true) { [weak self] _ in
             Task { await self?.refresh() }
         }
     }
@@ -92,28 +103,30 @@ struct PopoverView: View {
                 Text("난지캠핑장").font(.headline)
                 Spacer()
                 if vm.isLoading { ProgressView().controlSize(.small) }
-                Button { Task { await vm.refresh() } } label: { Image(systemName: "arrow.clockwise") }
-                    .buttonStyle(.borderless)
-            }
-
-            // 금·토 요약
-            let open = vm.openWeekendCount
-            HStack(spacing: 6) {
-                Circle().fill(open > 0 ? .green : .secondary).frame(width: 8, height: 8)
-                Text(open > 0 ? "금·토 예약 가능 \(open)곳" : "현재 금·토 예약 가능 없음")
-                    .font(.subheadline).bold()
-            }
-
-            // 일반캠핑존 구역별
-            HStack(spacing: 10) {
-                ForEach(vm.zoneCounts, id: \.0) { z, n in
-                    VStack(spacing: 2) {
-                        Text(z).font(.caption).bold()
-                        Text("\(n)").font(.body).foregroundStyle(n > 0 ? .green : .secondary)
-                    }
-                    .frame(width: 34).padding(.vertical, 4)
-                    .background(.quaternary, in: RoundedRectangle(cornerRadius: 6))
+                Button { Task { await vm.refresh() } } label: {
+                    Label("갱신", systemImage: "arrow.clockwise")
                 }
+                .controlSize(.small)
+            }
+
+            // 갱신 주기 설정
+            HStack(spacing: 8) {
+                let open = vm.openWeekendCount
+                Circle().fill(open > 0 ? .green : .secondary).frame(width: 8, height: 8)
+                Text(open > 0 ? "금·토 예약 가능 \(open)곳" : "금·토 예약 가능 없음")
+                    .font(.subheadline).bold()
+                Spacer()
+                Text("자동 갱신").font(.caption2).foregroundStyle(.secondary)
+                Picker("", selection: $vm.refreshInterval) {
+                    Text("끔").tag(0.0)
+                    Text("30초").tag(30.0)
+                    Text("1분").tag(60.0)
+                    Text("5분").tag(300.0)
+                    Text("15분").tag(900.0)
+                }
+                .labelsHidden()
+                .frame(width: 74)
+                .controlSize(.small)
             }
 
             Divider()
@@ -144,7 +157,16 @@ struct PopoverView: View {
                         .font(.caption2).foregroundStyle(.secondary)
                 }
                 Spacer()
-                Link("예약 페이지", destination: URL(string: "https://yeyak.seoul.go.kr")!).font(.caption2)
+                Button {
+                    let p = "/Users/jhkoo/SeoulCampingWidget/webwidget/dist/calendar.html"
+                    if FileManager.default.fileExists(atPath: p) {
+                        openURL(URL(fileURLWithPath: p))
+                    } else {
+                        openURL(URL(string: "https://yeyak.seoul.go.kr")!)
+                    }
+                } label: { Text("웹 크게 보기").font(.caption2) }
+                .buttonStyle(.plain)
+                Link("예약", destination: URL(string: "https://yeyak.seoul.go.kr")!).font(.caption2)
                 Button("종료") { NSApplication.shared.terminate(nil) }.font(.caption2)
             }
         }

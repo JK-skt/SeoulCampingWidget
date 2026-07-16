@@ -97,12 +97,21 @@ enum CalendarStore {
 
     /// 앱 번들의 sample_calendar.json 로드(라이브 미가용 시 표시용).
     static func loadBundled() -> CalendarData {
-        guard let url = Bundle.main.url(forResource: "sample_calendar", withExtension: "json"),
-              let data = try? Data(contentsOf: url),
-              let decoded = try? JSONDecoder().decode(CalendarData.self, from: data) else {
-            return CalendarData()
+        // 1) Bundle.main 리소스 2) 실행 파일 기준 Contents/Resources 경로 폴백
+        var candidates: [URL] = []
+        if let u = Bundle.main.url(forResource: "sample_calendar", withExtension: "json") { candidates.append(u) }
+        let exe = Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/sample_calendar.json")
+        candidates.append(exe)
+        for url in candidates {
+            if let data = try? Data(contentsOf: url),
+               let decoded = try? JSONDecoder().decode(CalendarData.self, from: data) {
+                try? "loaded \(decoded.services.count) svc from \(url.lastPathComponent)"
+                    .write(to: URL(fileURLWithPath: "/tmp/seoulcamping_debug.txt"), atomically: true, encoding: .utf8)
+                return decoded
+            }
         }
-        return decoded
+        try? "loadBundled FAILED (no resource)".write(to: URL(fileURLWithPath: "/tmp/seoulcamping_debug.txt"), atomically: true, encoding: .utf8)
+        return CalendarData()
     }
 }
 

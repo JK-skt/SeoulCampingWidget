@@ -70,7 +70,12 @@ HTML = f'''<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">
 <style>
  :root{{color-scheme:dark}} *{{box-sizing:border-box;font-family:-apple-system,"Apple SD Gothic Neo",sans-serif}}
  body{{margin:0;background:linear-gradient(135deg,#1c1c1e,#23233a 55%,#0f5f49);color:#f2f2f7;padding:24px}}
- h1{{font-size:19px;margin:0 0 2px}} .live{{color:#34c759;font-size:12px}} .sub{{font-size:12px;opacity:.55;margin-bottom:14px}}
+ h1{{font-size:19px;margin:0 0 2px}} .live{{color:#34c759;font-size:12px}} .sub{{font-size:12px;opacity:.55;margin-bottom:10px}}
+ .bar{{display:flex;align-items:center;gap:12px;margin-bottom:14px;font-size:13px}}
+ .bar button{{background:#0a84ff;color:#fff;border:0;border-radius:8px;padding:6px 12px;font-size:13px;cursor:pointer}}
+ .bar button:hover{{background:#0a74e0}}
+ .bar select{{background:rgba(255,255,255,.1);color:#f2f2f7;border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:3px 6px;margin-left:6px}}
+ .bar .st{{opacity:.5}}
  .cals{{display:flex;gap:18px;flex-wrap:wrap}}
  .cal{{background:rgba(40,40,46,.9);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:12px;flex:1;min-width:430px}}
  .cal-h{{font-size:14px;font-weight:700;margin-bottom:8px}} .cal-h b{{opacity:.7;font-weight:600}}
@@ -89,6 +94,19 @@ HTML = f'''<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">
 </style></head><body>
  <h1>난지캠핑장 · 날짜별 사이트별 잔여 <span class="live">● LIVE</span></h1>
  <div class="sub">yeyak.seoul.go.kr 예약 달력(로그인 불필요) · 우측 상단 숫자=그날 총 잔여 · 생성 {gen}</div>
+ <div class="bar">
+   <button id="refresh">↻ 지금 갱신</button>
+   <label>자동 갱신
+     <select id="interval">
+       <option value="0">끔</option>
+       <option value="30">30초</option>
+       <option value="60">1분</option>
+       <option value="300">5분</option>
+       <option value="900">15분</option>
+     </select>
+   </label>
+   <span id="status" class="st"></span>
+ </div>
  <div class="cals">{cur}{nxt}</div>
  <div class="legend">
    <span><span class="k ok">C13</span> 여유(4+)</span>
@@ -96,6 +114,22 @@ HTML = f'''<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">
    <span><span class="k full">D0</span> 마감</span>
    <span>사이트: 프리 · 일반 A/B/C/D · 바비큐 · 캠파</span>
  </div>
+ <script>
+   // 갱신: 페이지 새로고침(데이터는 빌드 시 주입). 자동 갱신 주기를 localStorage에 저장.
+   const sel = document.getElementById('interval'), st = document.getElementById('status');
+   const saved = localStorage.getItem('camp_interval') || '0';
+   sel.value = saved;
+   let timer = null;
+   function apply() {{
+     if (timer) clearInterval(timer);
+     const s = parseInt(sel.value, 10);
+     localStorage.setItem('camp_interval', String(s));
+     if (s > 0) {{ timer = setInterval(() => location.reload(), s * 1000); st.textContent = `${{s}}초마다 자동 갱신`; }}
+     else st.textContent = '자동 갱신 꺼짐';
+   }}
+   document.getElementById('refresh').onclick = () => location.reload();
+   sel.onchange = apply; apply();
+ </script>
 </body></html>'''
 out = sys.argv[2] if len(sys.argv) > 2 else "/tmp/seats.html"
 open(out,"w").write(HTML); print(out)
