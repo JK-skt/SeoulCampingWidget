@@ -10,6 +10,13 @@ struct ContentView: View {
             Divider()
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
+                    if vm.isBlocked {
+                        Label("일시적 접근 제한으로 캐시된 정보를 표시 중입니다 · 자동 재시도됩니다",
+                              systemImage: "exclamationmark.triangle.fill")
+                            .font(.caption).foregroundStyle(Color.availSoon)
+                            .padding(10).frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color.availSoon.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
+                    }
                     controlRow
                     summaryCards
                     if vm.viewMode == .calendar {
@@ -48,6 +55,10 @@ struct ContentView: View {
                 Text("끔").tag(0.0); Text("30초").tag(30.0); Text("1분").tag(60.0)
                 Text("5분").tag(300.0); Text("15분").tag(900.0)
             }.frame(width: 130).controlSize(.small)
+            Button {
+                NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+                NSApp.sendAction(Selector(("showPreferencesWindow:")), to: nil, from: nil)
+            } label: { Image(systemName: "gearshape") }.help("설정")
         }
         .padding(.horizontal, 16).padding(.vertical, 10)
     }

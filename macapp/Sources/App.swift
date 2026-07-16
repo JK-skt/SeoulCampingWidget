@@ -24,6 +24,11 @@ struct SeoulCampingApp: App {
             ContentView(vm: vm)
         }
         .defaultSize(width: 980, height: 680)
+
+        // 설정 (Cmd+, / 툴바 기어)
+        Settings {
+            SettingsView(vm: vm)
+        }
     }
 }
 
