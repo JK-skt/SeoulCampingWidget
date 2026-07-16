@@ -2,24 +2,34 @@
 
 난지 캠핑장 예약 현황을 브라우저 자동화로 수집하는 폴백 경로.
 
-## 상태
+## ⚠️ 근본 원인: WAF (봇 차단) — 반드시 읽기
 
-🟢 **동작** — Playwright로 난지캠핑장을 실크롤해 서비스 상태(접수중/마감)를
-구역별로 집계, Swift 파서 계약 HTML을 출력한다. `node crawl.mjs`로 라이브 실행됨.
+yeyak의 **예약 달력 AJAX**(`selectListReservCalAjax.do`)는 WAF(WebMonitor)가 보호한다.
+외부 자동화(curl/서버 크롤러)의 POST는 `/management/ipRedirect.do?threatGb=DNP`
+(**비정상 접근으로 인한 차단**)으로 302 리다이렉트된다. **로그인 문제가 아니라 봇 차단**이다.
 
-🟢 **일자별 예약 가능일**: 로그인 세션(`auth.json`)을 주입하면 예약폼 달력에서
-`<td class="able"><a data-ymd="YYYYMMDD">` = 예약 가능일을 파싱한다.
+- 상세페이지 달력은 inline JS 함수 `fnDraw()`가 `$('#aform').serialize()`를 POST해 채운다.
+- **실제 브라우저**(WAF 통과 세션) 안에서 호출하면 정상 JSON을 받는다.
+- 과도한 자동 접근 시 IP가 일시 플래그되어 목록 GET까지 차단된다(수십 분).
 
-### 로그인 세션 준비 (일자별 조회용, 1회)
+## 잔여 수집 방법 (권장 순)
 
-```bash
-node login.mjs     # (로컬 PC, 화면 필요) 브라우저 로그인 → Enter → auth.json 저장
-node crawl.mjs --json   # 이제 서비스별 availableDates(예약가능일)까지 포함
+### ① 브라우저 수집 — 가장 확실 (WAF 항상 통과) ★권장
+`browser_collect.js`를 **yeyak 사이트 콘솔에 붙여넣기**:
 ```
+1) 브라우저에서 https://yeyak.seoul.go.kr 접속
+2) F12 → Console 에 crawler/browser_collect.js 전체 붙여넣고 Enter
+3) nanji_calendar.json 자동 다운로드
+4) ~/SeoulCampingWidget/crawler/nanji_calendar.json 로 저장 → 앱에서 [갱신]
+```
+사용자의 실제 브라우저 세션(이미 WAF 통과)을 쓰므로 항상 동작한다. 앱/웹이 이 JSON을 읽는다.
 
-> ⚠️ `auth.json`은 로그인 세션(쿠키)이라 **민감정보**다. `.gitignore`로 제외되며
-> 절대 커밋하지 않는다. 원격/headless 환경에선 로그인 상호작용이 불가하므로
-> 로컬에서 생성해 크롤 환경으로 옮긴다.
+### ② 자동 크롤러 — 깨끗한 IP에서 정중히 1회
+`node calendar.mjs` — 실브라우저로 상세페이지 진입 후 `fnDraw()`를 호출해 달력 AJAX를
+가로챈다. IP가 플래그 안 된 상태에서만 통과(차단 감지 시 즉시 중단·백오프).
+
+### ③ 서비스 단위(접수중/마감)만
+`node crawl.mjs` — 목록만으로 서비스 상태를 얻는다(일자별 잔여 없음).
 
 ## 환경 준비 (node 없을 때)
 

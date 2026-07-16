@@ -197,8 +197,8 @@ actor YeyakClient {
         }
         let html = String(decoding: data, as: UTF8.self)
 
-        // 차단 페이지 감지 → 백오프(10분) + 캐시 폴백
-        if html.contains("비정상 접근") || html.contains("접근이 차단") {
+        // WAF 차단 감지(ipRedirect/비정상 접근) → 백오프(10분) + 캐시 폴백
+        if html.contains("비정상 접근") || html.contains("접근이 차단") || html.contains("ipRedirect") {
             backoffUntil = Date().addingTimeInterval(600)
             warmedUp = false   // 다음엔 세션 새로 확립
             if let cached = Self.loadCache() { return .ok(cached) }
