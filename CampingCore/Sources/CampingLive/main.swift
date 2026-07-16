@@ -1,46 +1,43 @@
 import Foundation
 import CampingCore
 
-// 서울 공공서비스예약 실 API 라이브 호출.
-// - 인증키: 환경변수 SEOUL_API_KEY (없으면 "sample" → 카테고리당 5행 제한)
-// - 실제 발급 키(무료, data.seoul.go.kr)를 넣으면 전체를 조회해 난지 캠핑을 필터한다.
+// 서울 공공서비스예약 실 API 라이브 조회 + 가용 요약.
+// - 인증키:  환경변수 SEOUL_API_KEY (없으면 "sample" → 카테고리당 5행)
+// - 키워드:  환경변수 SEOUL_KEYWORD (기본 "난지,캠핑" — 쉼표 구분, OR 매칭)
+//
+// 실측 참고: 난지 '오토캠핑장'은 공개 API에 없고 yeyak 세션 크롤이 필요하다.
+// 공개 API의 실존 캠핑 데이터는 중랑캠핑숲/관악 캠핑숲 등이며, 이 도구는
+// 임의 키워드로 실시간 예약 상태(접수중/마감)를 집계해 보여준다.
 
 func run() async {
     let client = SeoulReservationClient()
-    print("== 서울 공공서비스예약 라이브 호출 ==")
-    print("인증키: \(client.isSampleKey ? "sample(5행 제한)" : "실키")")
+    let keywords = (ProcessInfo.processInfo.environment["SEOUL_KEYWORD"] ?? "난지,캠핑")
+        .split(separator: ",").map { String($0).trimmingCharacters(in: .whitespaces) }
 
-    // 1) 실 스키마 라이브 디코딩 검증 (Sport 5행)
-    do {
-        let (total, rows) = try await client.fetchPage(.sport, start: 1, end: 5)
-        print("\n[Sport] 전체 \(total)건 중 \(rows.count)행 디코딩:")
-        for r in rows.prefix(5) {
-            print("  • \(r.name)")
-            print("     상태=\(r.status) 장소=\(r.place ?? "-") 지역=\(r.area ?? "-") 접수=\(r.receiptBegin ?? "-")~\(r.receiptEnd ?? "-")")
-        }
-    } catch {
-        print("  ❌ Sport 조회 실패: \(error)")
-    }
+    print("== 서울 공공서비스예약 라이브 요약 ==")
+    print("인증키: \(client.isSampleKey ? "sample(5행 제한)" : "실키")  |  키워드: \(keywords.joined(separator: ", "))")
 
-    // 2) 난지/캠핑 필터 (sample 키면 15행만 스캔되어 못 찾을 수 있음)
-    let camping = (try? await client.fetchNanjiCamping()) ?? []
-    print("\n[난지/캠핑 매칭] \(camping.count)건")
-    for c in camping.prefix(20) {
-        print("  • \(c.name) | \(c.status) | 구역=\(c.inferredSite?.label ?? "?")")
-    }
+    let services = (try? await client.search(keywords: keywords, matchAny: true)) ?? []
+    print("\n매칭 서비스: \(services.count)건")
 
-    // 3) 이번 달 구역별 '접수중' 집계
-    let months = DateHelper.currentAndNextMonth(from: Date())
-    if let m = months.first {
-        let counts = SeoulReservationDataSource.siteCounts(from: camping, month: m)
-        print("\n[\(m.iso)] 구역별 접수중 슬롯: " +
-              Campsite.allCases.map { "\($0.label)=\(counts[$0] ?? 0)" }.joined(separator: " "))
+    // 상태 분포
+    let byStatus = Dictionary(grouping: services, by: { $0.status }).mapValues(\.count)
+    print("상태 분포: " + byStatus.sorted { $0.value > $1.value }
+        .map { "\($0.key)=\($0.value)" }.joined(separator: "  "))
+
+    // '접수중'(예약 가능) 서비스만
+    let open = services.filter { $0.isOpen }
+    print("\n▶ 예약 가능(접수중): \(open.count)건")
+    for s in open.prefix(20) {
+        let site = s.inferredSite.map { " [\($0.label)구역]" } ?? ""
+        print("   • \(s.name.prefix(50))\(site)")
     }
+    if open.count > 20 { print("   … 외 \(open.count - 20)건") }
 
     if client.isSampleKey {
-        print("\n※ sample 키라 5행/카테고리 제한 → 난지 캠핑 전체 조회 불가.")
-        print("  실제 키 발급 후:  SEOUL_API_KEY=발급키 swift run CampingLive")
+        print("\n※ sample 키(5행/카테고리) — 실키:  SEOUL_API_KEY=키 swift run CampingLive")
     }
+    print("\n(사이트 A~D 구역별 잔여 좌석은 공개 API 미제공 → yeyak 세션 크롤 필요)")
 }
 
 await run()

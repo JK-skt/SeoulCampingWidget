@@ -78,10 +78,20 @@ public struct SeoulReservationClient: Sendable {
 
     /// 여러 카테고리에서 난지/캠핑 서비스만 모은다.
     public func fetchNanjiCamping() async throws -> [ReservationService] {
+        try await search(keywords: ["난지", "캠핑"], matchAny: true)
+    }
+
+    /// 키워드(서비스명/장소)로 전 카테고리를 검색한다.
+    /// - matchAny: true면 키워드 중 하나라도 포함, false면 모두 포함.
+    public func search(keywords: [String], matchAny: Bool = true) async throws -> [ReservationService] {
         var result: [ReservationService] = []
         for category in Category.allCases {
             let rows = (try? await fetchAll(category)) ?? []
-            result += rows.filter { $0.isNanjiCamping }
+            result += rows.filter { svc in
+                let hay = svc.name + (svc.place ?? "")
+                return matchAny ? keywords.contains { hay.contains($0) }
+                                : keywords.allSatisfy { hay.contains($0) }
+            }
         }
         return result
     }

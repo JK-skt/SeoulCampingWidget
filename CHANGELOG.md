@@ -41,7 +41,10 @@
 ### 검증 (Verified)
 - `swift run CampingCoreDemo` — 20개 스모크 테스트 전체 통과
   (Process 크롤러 브리지는 `/bin/sh`로 실제 실행, 서울 API 스키마 매핑 검증)
-- `swift run CampingLive` — 실제 서울 공공예약 API 라이브 호출로 실 데이터 디코딩 확인
+- `swift run CampingLive` — **실 인증키로 라이브 검증 완료**: 키워드 "난지" 37건(접수중 25),
+  "캠핑숲" 7건(접수중 3) 실시간 상태 조회. `SEOUL_KEYWORD`로 키워드 설정 가능.
+- **실측 확인**: 난지 오토캠핑장은 공개 API 미제공(1,953건 전수 확인) → yeyak 세션 크롤 필요.
+  자세한 내용: [docs/LIVE_FINDINGS.md](docs/LIVE_FINDINGS.md)
 - 앱/위젯 소스 `swiftc -typecheck` 통과 (App Intents/Updater 포함, SDK+모듈 대비)
 - `project.pbxproj` 24자 ID(63개)/참조 무결성 + plist 문법 검증
 
