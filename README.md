@@ -30,6 +30,24 @@ swift test                  # XCTest (정식 Xcode/CI 필요)
 > (자세한 내용은 [docs/BUILD.md](docs/BUILD.md)). 다만 `.app`/`.appex` 번들
 > 빌드와 실행에는 정식 Xcode가 필요합니다.
 
+### 3) 서울 공공예약 실 API 라이브 호출
+
+```bash
+cd CampingCore
+swift run CampingLive                       # sample 키(카테고리당 5행) — 실 스키마 디코딩 데모
+SEOUL_API_KEY=발급키 swift run CampingLive    # 실키 — 난지 캠핑 전체 조회·집계
+```
+
+무료 인증키는 [서울 열린데이터광장](https://data.seoul.go.kr) 회원가입 후
+"공공서비스예약" API 신청으로 즉시 발급됩니다. 앱은 환경변수
+`SEOUL_API_KEY`가 있으면 자동으로 실 API를 우선 사용합니다(없으면 Mock 폴백).
+
+> **실측 확인**: `swift run CampingLive`로 실제 서울 API를 호출해 예약 데이터
+> (SVCNM·SVCSTATNM 접수중/마감·접수기간 등)를 디코딩하는 것을 검증했습니다.
+> 다만 이 API는 **서비스 단위 예약상태**를 제공하므로, availableCount는
+> "해당 월·구역에서 접수중인 슬롯 수"로 해석합니다. 사이트별 **잔여 좌석 수**는
+> yeyak.seoul.go.kr 상세 크롤이 필요합니다(로드맵).
+
 ### 2) 앱/위젯 실행 (정식 Xcode 필요)
 
 ```bash
@@ -78,8 +96,9 @@ UI(메뉴바/위젯) → ReservationViewModel → ReservationRepository
 |------|------|
 | 핵심 모델/저장소/파서/폴러 | ✅ 구현·검증 |
 | 메뉴바 앱 / 위젯 UI | ✅ 골격 |
-| 하이브리드 Provider (API→크롤러→Mock) | ✅ 구조 완성, 실소스 미연결 |
-| 실 연동 스캐폴드 (OpenAPI URL 빌더 + Process 크롤러 브리지) | ✅ 구현·검증 (실 서비스명/디코더만 ⏳) |
+| 하이브리드 Provider (API→크롤러→Mock) | ✅ 서울 실 API를 기본 primary로 연결 |
+| **서울 공공예약 실 API 연동** | ✅ 실 스키마 디코딩 **라이브 호출 검증** (전체 조회는 무료 인증키 필요) |
+| 실 연동 스캐폴드 (OpenAPI URL 빌더 + Process 크롤러 브리지) | ✅ 구현·검증 |
 | App Intents / Siri / Spotlight | ✅ 스캐폴드 (새로고침 인텐트+단축어) |
 | Sparkle 자동 업데이트 | ⏳ seam(UpdaterService)만 — SPM/서명 도입 남음 |
 | 알림 트리거(변화 감지 diff) + 적응형 자동 새로고침 | ✅ 구현·검증 |

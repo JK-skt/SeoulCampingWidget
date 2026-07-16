@@ -91,6 +91,16 @@ func runSmokeTests() async -> Int {
     check(crawled[.a] == 8, "Process 크롤러 브리지(/bin/sh)")
     #endif
 
+    // 10) 서울 실 API 매핑(오프라인, 네트워크 불필요)
+    let svcs = [
+        ReservationService(id: "1", name: "난지캠핑장 A구역 \(months[0].year)년", status: "접수중",
+                           receiptBegin: "\(months[0].year)-\(String(format: "%02d", months[0].month))-01 00:00:00.0",
+                           receiptEnd: "\(months[0].year)-\(String(format: "%02d", months[0].month))-28 00:00:00.0"),
+        ReservationService(id: "2", name: "난지캠핑장 B구역", status: "예약마감")
+    ]
+    let mapped = SeoulReservationDataSource.siteCounts(from: svcs, month: months[0])
+    check(mapped[.a] == 1 && (mapped[.b] ?? 0) == 0, "서울 실 API 스키마 매핑(접수중=집계, 마감=제외)")
+
     print("== 결과: \(failures == 0 ? "전체 통과 🎉" : "\(failures)건 실패") ==")
     return failures
 }

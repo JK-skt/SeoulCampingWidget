@@ -14,7 +14,10 @@ let package = Package(
         .library(name: "CampingCore", targets: ["CampingCore"]),
         // 정식 Xcode(XCTest) 없이도 로직을 검증할 수 있는 스모크 테스트 실행 파일.
         // 사용법: `swift run CampingCoreDemo`
-        .executable(name: "CampingCoreDemo", targets: ["CampingCoreDemo"])
+        .executable(name: "CampingCoreDemo", targets: ["CampingCoreDemo"]),
+        // 서울 공공예약 실 API를 라이브로 호출하는 실행 파일.
+        // 사용법: `SEOUL_API_KEY=발급키 swift run CampingLive` (키 없으면 sample=5행)
+        .executable(name: "CampingLive", targets: ["CampingLive"])
     ],
     targets: [
         .target(
@@ -25,6 +28,11 @@ let package = Package(
             name: "CampingCoreDemo",
             dependencies: ["CampingCore"],
             path: "Sources/CampingCoreDemo"
+        ),
+        .executableTarget(
+            name: "CampingLive",
+            dependencies: ["CampingCore"],
+            path: "Sources/CampingLive"
         ),
         .testTarget(
             name: "CampingCoreTests",

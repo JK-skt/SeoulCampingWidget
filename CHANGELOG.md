@@ -22,6 +22,12 @@
 - **Favorites**: 즐겨찾기 사이트 필터 (`snapshot.filtered(by:)`)
 - **HeatmapBuilder**: 주말 히트맵 셀 데이터 + 캘린더 뷰 히트맵
 - **적응형 자동 새로고침**: `ReservationViewModel.startAutoRefresh()`가 `AdaptivePoller` 주기 사용
+- **서울 공공예약 실 API 연동** (라이브 호출 검증)
+  - `ReservationService`: 실 응답 스키마(SVCNM/SVCSTATNM/RCPTBGNDT 등) 모델
+  - `SeoulReservationClient`: 실 엔드포인트 호출·페이징(실키)·JSON 디코딩, `SEOUL_API_KEY` 환경변수 지원
+  - `SeoulReservationDataSource`: 접수중 서비스 → 구역별 집계(순수 매핑 함수 테스트)
+  - `CampingLive` 실행 파일: `swift run CampingLive`로 실 API 라이브 호출
+  - HybridProvider 기본 primary를 서울 실 API로 연결
 - **실 연동 스캐폴드**
   - `SeoulOpenAPIDataSource`: 서울 OpenAPI 표준 URL 빌더 + 주입식 디코더
   - `ProcessCrawlerDataSource`: 외부 크롤러(node)를 서브프로세스로 실행→파서 연결 (macOS)
@@ -33,8 +39,9 @@
 - 문서: README, 아키텍처/빌드/릴리스 가이드, 다이어그램
 
 ### 검증 (Verified)
-- `swift run CampingCoreDemo` — 19개 스모크 테스트 전체 통과
-  (Process 크롤러 브리지는 `/bin/sh`로 실제 실행되어 파서까지 연결 검증)
+- `swift run CampingCoreDemo` — 20개 스모크 테스트 전체 통과
+  (Process 크롤러 브리지는 `/bin/sh`로 실제 실행, 서울 API 스키마 매핑 검증)
+- `swift run CampingLive` — 실제 서울 공공예약 API 라이브 호출로 실 데이터 디코딩 확인
 - 앱/위젯 소스 `swiftc -typecheck` 통과 (App Intents/Updater 포함, SDK+모듈 대비)
 - `project.pbxproj` 24자 ID(63개)/참조 무결성 + plist 문법 검증
 

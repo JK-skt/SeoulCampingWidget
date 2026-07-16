@@ -12,7 +12,7 @@ public struct HybridProvider: ReservationProvider {
     private let fallback: (any ReservationProvider)?
 
     public init(campground: Campground = .nanji,
-                primary: MonthlyDataSource = OpenAPIDataSource(),
+                primary: MonthlyDataSource = SeoulReservationDataSource(),
                 secondary: MonthlyDataSource = CrawlerDataSource(),
                 fallback: (any ReservationProvider)? = MockProvider()) {
         self.campground = campground
