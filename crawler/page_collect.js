@@ -14,8 +14,11 @@
 (() => {
   const id = (location.href.match(/rsv_svc_id=([A-Za-z0-9]+)/) || [])[1];
   if (!id) { console.log("[난지] 상세페이지(rsv_svc_id=...)에서 실행하세요."); return; }
-  const title = (document.querySelector("h3, .tit_view, .view_top .tit, .cont_tit") || {}).innerText
-                || document.title || id;
+  // 서비스 제목: "난지캠핑장"을 포함한 제목 요소를 찾는다(사이드바 등 오탐 방지).
+  const title = [...document.querySelectorAll("h1,h2,h3,h4,.tit,.view_tit,.cont_tit,.tit_view")]
+                  .map((e) => (e.textContent || "").replace(/\s+/g, " ").trim())
+                  .find((t) => t.includes("난지캠핑장"))
+                || (document.title || "").trim() || id;
 
   // 달력 셀: <div id="div_cal_YYYYMMDD"> ... <span class="num">신청수/총모집수</span>
   const days = [];
